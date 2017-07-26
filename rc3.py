@@ -1,3 +1,4 @@
+from time import time
 from sanic import Blueprint
 from sanic.response import json
 
@@ -88,7 +89,7 @@ async def device(rq, host, port, domain, family, member):
 			},
 			"attributes": buildurl(rq, "rc3.attributes", tango_host, device),
 			"commands": buildurl(rq, "rc3.commands", tango_host, device),
-			"pipes": "---",
+			"pipes": buildurl(rq, "rc3.pipes", tango_host, device),
 			"properties": buildurl(rq, "rc3.properties", tango_host, device),
 			"state": buildurl(rq, "rc3.device_state", tango_host, device),
 			"_links": {
@@ -141,7 +142,6 @@ async def attributes(rq, host, port, domain, family, member):
 @api_rc3.route("/hosts/<host>/<port:int>/devices/<domain>/<family>/<member>/attributes/<attr>")
 async def attribute(rq, host, port, domain, family, member, attr):
 	device = "/".join((domain, family, member))
-	proxy = await getDeviceProxy(device)
 	return json(
 		{
 			"name": attr,
@@ -252,4 +252,41 @@ async def properties(rq, host, port, domain, family, member):
 			"name": prop,
 			"values": proxy.get_property(prop)[prop],
 		} for prop in props]
+	)
+
+
+@api_rc3.route("/hosts/<host>/<port:int>/devices/<domain>/<family>/<member>/pipes")
+async def pipes(rq, host, port, domain, family, member):
+	device = "/".join((domain, family, member))
+	proxy = await getDeviceProxy(device)
+	pipes = proxy.get_pipe_list()
+	return json(
+		[{
+			"name": pipe,
+			"href": buildurl(rq, "rc3.pipe", tango_host, device, pipe=pipe)
+		} for pipe in pipes]
+	)
+
+
+@api_rc3.route("/hosts/<host>/<port:int>/devices/<domain>/<family>/<member>/pipes/<pipe>")
+async def pipe(rq, host, port, domain, family, member, pipe):
+	device = "/".join((domain, family, member))
+	proxy = await getDeviceProxy(device)
+	value = await proxy.read_pipe(pipe)
+	data = []
+	for v in value[1]:
+		data.append({
+			"name": v["name"],
+			"value": [v["value"]]
+		})
+	return json(
+		{
+			"name": pipe,
+			"size": len(value),
+			"timestamp": int(time()),
+			"data": data,
+			"_links": {
+				"_self": buildurl(rq, "rc3.pipe", tango_host, device, pipe=pipe)
+			}
+		}
 	)
