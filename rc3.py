@@ -2,15 +2,34 @@ from time import time
 from sanic import Blueprint
 from sanic.response import json
 
-from tango import Database, CmdArgType
+from tango import Database, CmdArgType, DevFailed
 
 from utils import buildurl
-from cache import getDeviceProxy
+from cache import getDeviceProxy, getAttributeProxy
 
 
 api_rc3 = Blueprint("rc3")
 db = Database()
 tango_host = (db.get_db_host(), db.get_db_port())
+
+
+@api_rc3.exception(DevFailed)
+async def tango_error(request, exception):
+	errors = []
+	for err in exception.args:
+		errors.append({
+			"reason": err.reason,
+			"description": err.desc,
+			"severity": str(err.severity),
+			"origin": err.origin
+		})
+	return json(
+		{
+			"errors": errors,
+			"quality": "---",
+			"timestamp": int(time())
+		}
+	)
 
 
 @api_rc3.route("/")
@@ -148,7 +167,7 @@ async def attribute(rq, host, port, domain, family, member, attr):
 			"value": buildurl(rq, "rc3.attribute_value", tango_host, device, attr=attr),
 			"info": buildurl(rq, "rc3.attribute_info", tango_host, device, attr=attr),
 			"properties": "---",
-			"history": "---",
+			"history": buildurl(rq, "rc3.attribute_history", tango_host, device, attr=attr),
 			"_links": {
 				"_self": buildurl(rq, "rc3.attribute", tango_host, device, attr=attr)
 			}
@@ -215,6 +234,21 @@ async def attribute_info(rq, host, port, domain, family, member, attr):
 	)
 
 
+@api_rc3.route("/hosts/<host>/<port:int>/devices/<domain>/<family>/<member>/attributes/<attr>/history")
+async def attribute_history(rq, host, port, domain, family, member, attr):
+	attribute = "/".join((domain, family, member, attr))
+	proxy = await getAttributeProxy(attribute)
+	hist = proxy.history(10)
+	return json(
+		[{
+			"name": h.name,
+			"value": h.value,
+			"quality": str(h.quality),
+			"timestamp": h.time.tv_sec,
+		} for h in hist]
+	)
+
+
 @api_rc3.route("/hosts/<host>/<port:int>/devices/<domain>/<family>/<member>/commands")
 async def commands(rq, host, port, domain, family, member):
 	device = "/".join((domain, family, member))
@@ -234,12 +268,50 @@ async def commands(rq, host, port, domain, family, member):
 				"in_type_desc": info.in_type_desc,
 				"out_type_desc": info.out_type_desc
 			},
-			"history": "---",
+			"history": buildurl(rq, "rc3.command_history", tango_host, device, cmd=cmd),
 			"_links": {
 				"_self": buildurl(rq, "rc3.commands", tango_host, device)
 			}
 		})
 	return json(cmds_w_info)
+
+
+@api_rc3.route("/hosts/<host>/<port:int>/devices/<domain>/<family>/<member>/commands/<cmd>")
+async def command(rq, host, port, domain, family, member, cmd):
+	device = "/".join((domain, family, member))
+	proxy = await getDeviceProxy(device)
+	info = proxy.get_command_config(cmd)
+	return json(
+		{
+			"name": cmd,
+			"info": {
+				"cmd_name": info.cmd_name,
+				"cmd_tag": info.cmd_tag,
+				"level": str(info.disp_level),
+				"in_type": str(info.in_type),
+				"out_type": str(info.out_type),
+				"in_type_desc": info.in_type_desc,
+				"out_type_desc": info.out_type_desc
+			},
+			"history": buildurl(rq, "rc3.command_history", tango_host, device, cmd=cmd),
+			"_links": {
+				"_self": buildurl(rq, "rc3.command", tango_host, device, cmd=cmd)
+			}
+		}
+	)
+
+
+@api_rc3.route("/hosts/<host>/<port:int>/devices/<domain>/<family>/<member>/commands/<cmd>/history")
+async def command_history(rq, host, port, domain, family, member, cmd):
+	device = "/".join((domain, family, member))
+	proxy = await getDeviceProxy(device)
+	hist = proxy.command_history(cmd, 10)
+	return json(
+		[{
+			"name": cmd,
+			"output": h.extract()
+		} for h in hist]
+	)
 
 
 @api_rc3.route("/hosts/<host>/<port:int>/devices/<domain>/<family>/<member>/properties")
