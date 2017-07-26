@@ -149,8 +149,8 @@ async def attributes(rq, host, port, domain, family, member):
 			"name": attr,
 			"value": buildurl(rq, "rc3.attribute_value", tango_host, device, attr=attr),
 			"info": buildurl(rq, "rc3.attribute_info", tango_host, device, attr=attr),
-			"properties": "---",
-			"history": "---",
+			"properties": buildurl(rq, "rc3.attribute_properties", tango_host, device, attr=attr),
+			"history": buildurl(rq, "rc3.attribute_history", tango_host, device, attr=attr),
 			"_links": {
 				"_self": buildurl(rq, "rc3.attributes", tango_host, device)
 			}
@@ -166,7 +166,7 @@ async def attribute(rq, host, port, domain, family, member, attr):
 			"name": attr,
 			"value": buildurl(rq, "rc3.attribute_value", tango_host, device, attr=attr),
 			"info": buildurl(rq, "rc3.attribute_info", tango_host, device, attr=attr),
-			"properties": "---",
+			"properties": buildurl(rq, "rc3.attribute_properties", tango_host, device, attr=attr),
 			"history": buildurl(rq, "rc3.attribute_history", tango_host, device, attr=attr),
 			"_links": {
 				"_self": buildurl(rq, "rc3.attribute", tango_host, device, attr=attr)
@@ -200,7 +200,7 @@ async def attribute_value(rq, host, port, domain, family, member, attr):
 async def attribute_info(rq, host, port, domain, family, member, attr):
 	device = "/".join((domain, family, member))
 	proxy = await getDeviceProxy(device)
-	attr_info = proxy.get_attribute_config(attr)
+	attr_info = proxy.get_attribute_config_ex(attr)
 	return json(
 		{
 			"name": attr_info.name,
@@ -246,6 +246,18 @@ async def attribute_history(rq, host, port, domain, family, member, attr):
 			"quality": str(h.quality),
 			"timestamp": h.time.tv_sec,
 		} for h in hist]
+	)
+
+
+@api_rc3.route("/hosts/<host>/<port:int>/devices/<domain>/<family>/<member>/attributes/<attr>/properties")
+async def attribute_properties(rq, host, port, domain, family, member, attr):
+	device = "/".join((domain, family, member))
+	props = db.get_device_attribute_property(device, attr)[attr]
+	return json(
+		[{
+			"name": k,
+			"_empty": not bool(len(v))		# don't ask me, mTango stuff...
+		} for k, v in props.items()]
 	)
 
 
