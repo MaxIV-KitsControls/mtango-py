@@ -158,6 +158,15 @@ async def attributes(rq, host, port, domain, family, member):
 	)
 
 
+# THIS NEEDS TO BE DEFINED BEFORE 'attribute' !!!
+@api_rc3.route("/hosts/<host>/<port:int>/devices/<domain>/<family>/<member>/attributes/value")
+async def alt_attribute_value(rq, host, port, domain, family, member):
+	data = []
+	for attr in rq.args["attr"]:
+		data.append(await attribute_value(rq, host, port, domain, family, member, attr, from_alt=True))
+	return json(data)
+
+
 @api_rc3.route("/hosts/<host>/<port:int>/devices/<domain>/<family>/<member>/attributes/<attr>")
 async def attribute(rq, host, port, domain, family, member, attr):
 	device = "/".join((domain, family, member))
@@ -176,7 +185,7 @@ async def attribute(rq, host, port, domain, family, member, attr):
 
 
 @api_rc3.route("/hosts/<host>/<port:int>/devices/<domain>/<family>/<member>/attributes/<attr>/value")
-async def attribute_value(rq, host, port, domain, family, member, attr):
+async def attribute_value(rq, host, port, domain, family, member, attr, from_alt=False):
 	device = "/".join((domain, family, member))
 	proxy = await getDeviceProxy(device)
 	attr_value = await proxy.read_attribute(attr)
@@ -186,14 +195,14 @@ async def attribute_value(rq, host, port, domain, family, member, attr):
 	else:
 		value = attr_value.value
 
-	return json(
-		{
-			"name": attr_value.name,
-			"value": value,
-			"quality": str(attr_value.quality),
-			"timestamp": attr_value.time.tv_sec
-		}
-	)
+	data = {
+		"name": attr_value.name,
+		"value": value,
+		"quality": str(attr_value.quality),
+		"timestamp": attr_value.time.tv_sec
+	}
+
+	return data if from_alt else json(data)
 
 
 @api_rc3.route("/hosts/<host>/<port:int>/devices/<domain>/<family>/<member>/attributes/<attr>/info")
