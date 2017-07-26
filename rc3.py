@@ -1,7 +1,7 @@
 from sanic import Blueprint
 from sanic.response import json
 
-from tango import Database
+from tango import Database, CmdArgType
 
 from utils import buildurl
 from cache import getDeviceProxy
@@ -14,29 +14,35 @@ tango_host = (db.get_db_host(), db.get_db_port())
 
 @api_rc3.route("/")
 async def api_root(rq):
-	return json({
-		"hosts": buildurl(rq, "rc3.hosts"),
-		"x-auth-method": "none"
-	})
+	return json(
+		{
+			"hosts": buildurl(rq, "rc3.hosts"),
+			"x-auth-method": "none"
+		}
+	)
 
 
 @api_rc3.route("/hosts")
 async def hosts(rq):
-	return json({
-		"%s:%s" % tango_host: buildurl(rq, "rc3.db_info", tango_host)
-	})
+	return json(
+		{
+			"%s:%s" % tango_host: buildurl(rq, "rc3.db_info", tango_host)
+		}
+	)
 
 
 @api_rc3.route("/hosts/<host>/<port:int>")
 async def db_info(rq, host, port):
 	info = db.get_info()
-	return json({
-		"name": info.split()[2],
-		"host": db.get_db_host(),
-		"port": db.get_db_port_num(),
-		"info": info.split("\n"),
-		"devices": buildurl(rq, "rc3.devices", tango_host)
-	})
+	return json(
+		{
+			"name": info.split()[2],
+			"host": db.get_db_host(),
+			"port": db.get_db_port_num(),
+			"info": info.split("\n"),
+			"devices": buildurl(rq, "rc3.devices", tango_host)
+		}
+	)
 
 
 @api_rc3.route("/hosts/<host>/<port:int>/devices")
@@ -52,13 +58,13 @@ async def devices(rq, host, port):
 	return json(
 		[{
 			"name": dev,
-			"href": buildurl(rq, "rc3.device_info", tango_host, dev)
+			"href": buildurl(rq, "rc3.device", tango_host, dev)
 		} for dev in devs]
 	)
 
 
 @api_rc3.route("/hosts/<host>/<port:int>/devices/<domain>/<family>/<member>")
-async def device_info(rq, host, port, domain, family, member):
+async def device(rq, host, port, domain, family, member):
 	device = "/".join((domain, family, member))
 	proxy = await getDeviceProxy(device)
 	import_info = proxy.import_info()
@@ -81,12 +87,12 @@ async def device_info(rq, host, port, domain, family, member):
 				"is_taco": "---"
 			},
 			"attributes": buildurl(rq, "rc3.attributes", tango_host, device),
-			"commands": "---",
+			"commands": buildurl(rq, "rc3.commands", tango_host, device),
 			"pipes": "---",
-			"properties": "---",
-			"state": "---",
+			"properties": buildurl(rq, "rc3.properties", tango_host, device),
+			"state": buildurl(rq, "rc3.device_state", tango_host, device),
 			"_links": {
-				"_self": buildurl(rq, "rc3.device_info", tango_host, device),
+				"_self": buildurl(rq, "rc3.device", tango_host, device),
 				"_parent": buildurl(rq, "rc3.devices", tango_host)
 			}
 		}
@@ -94,7 +100,7 @@ async def device_info(rq, host, port, domain, family, member):
 
 
 @api_rc3.route("/hosts/<host>/<port:int>/devices/<domain>/<family>/<member>/state")
-async def attribute_value(rq, host, port, domain, family, member):
+async def device_state(rq, host, port, domain, family, member):
 	device = "/".join((domain, family, member))
 	proxy = await getDeviceProxy(device)
 	state = await proxy.State()
@@ -104,10 +110,10 @@ async def attribute_value(rq, host, port, domain, family, member):
 			"state": str(state),
 			"status": status,
 			"_links": {
-				"_state":
-				"_status":
-				"_parent":
-				"_self":
+				"_state": buildurl(rq, "rc3.attribute", tango_host, device, attr="State"),
+				"_status": buildurl(rq, "rc3.attribute", tango_host, device, attr="Status"),
+				"_parent": buildurl(rq, "rc3.device", tango_host, device),
+				"_self": buildurl(rq, "rc3.device_state", tango_host, device)
 			}
 		}
 	)
@@ -155,10 +161,16 @@ async def attribute_value(rq, host, port, domain, family, member, attr):
 	device = "/".join((domain, family, member))
 	proxy = await getDeviceProxy(device)
 	attr_value = await proxy.read_attribute(attr)
+
+	if attr_value.type in (CmdArgType.DevState,):
+		value = str(attr_value.value)
+	else:
+		value = attr_value.value
+
 	return json(
 		{
 			"name": attr_value.name,
-			"value": attr_value.value,
+			"value": value,
 			"quality": str(attr_value.quality),
 			"timestamp": attr_value.time.tv_sec
 		}
@@ -200,4 +212,44 @@ async def attribute_info(rq, host, port, domain, family, member, attr):
 			"root_attr_name": attr_info.root_attr_name,
 			"enum_label": attr_info.enum_labels
 		}
+	)
+
+
+@api_rc3.route("/hosts/<host>/<port:int>/devices/<domain>/<family>/<member>/commands")
+async def commands(rq, host, port, domain, family, member):
+	device = "/".join((domain, family, member))
+	proxy = await getDeviceProxy(device)
+	cmds = proxy.get_command_list()
+	cmds_w_info = []
+	for cmd in cmds:
+		info = proxy.get_command_config(cmd)
+		cmds_w_info.append({
+			"name": cmd,
+			"info": {
+				"cmd_name": info.cmd_name,
+				"cmd_tag": info.cmd_tag,
+				"level": str(info.disp_level),
+				"in_type": str(info.in_type),
+				"out_type": str(info.out_type),
+				"in_type_desc": info.in_type_desc,
+				"out_type_desc": info.out_type_desc
+			},
+			"history": "---",
+			"_links": {
+				"_self": buildurl(rq, "rc3.commands", tango_host, device)
+			}
+		})
+	return json(cmds_w_info)
+
+
+@api_rc3.route("/hosts/<host>/<port:int>/devices/<domain>/<family>/<member>/properties")
+async def properties(rq, host, port, domain, family, member):
+	device = "/".join((domain, family, member))
+	proxy = await getDeviceProxy(device)
+	props = proxy.get_property_list("*")
+	return json(
+		[{
+			"name": prop,
+			"values": proxy.get_property(prop)[prop],
+		} for prop in props]
 	)
