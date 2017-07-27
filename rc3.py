@@ -32,7 +32,10 @@ async def tango_error(request, exception):
 	)
 
 
-@api_rc3.route("/")
+@api_rc3.route(
+	"/",
+	methods=["GET", "OPTIONS"]
+)
 async def api_root(rq):
 	return json(
 		{
@@ -42,7 +45,10 @@ async def api_root(rq):
 	)
 
 
-@api_rc3.route("/hosts")
+@api_rc3.route(
+	"/hosts",
+	methods=["GET", "OPTIONS"]
+)
 async def hosts(rq):
 	return json(
 		{
@@ -51,7 +57,10 @@ async def hosts(rq):
 	)
 
 
-@api_rc3.route("/hosts/<host>/<port:int>")
+@api_rc3.route(
+	"/hosts/<host>/<port:int>",
+	methods=["GET", "OPTIONS"]
+)
 async def db_info(rq, host, port):
 	info = db.get_info()
 	return json(
@@ -65,7 +74,10 @@ async def db_info(rq, host, port):
 	)
 
 
-@api_rc3.route("/hosts/<host>/<port:int>/devices")
+@api_rc3.route(
+	"/hosts/<host>/<port:int>/devices",
+	methods=["GET", "OPTIONS"]
+)
 async def devices(rq, host, port):
 	devs = []
 	domains = db.get_device_domain("*")
@@ -83,7 +95,10 @@ async def devices(rq, host, port):
 	)
 
 
-@api_rc3.route("/hosts/<host>/<port:int>/devices/<domain>/<family>/<member>")
+@api_rc3.route(
+	"/hosts/<host>/<port:int>/devices/<domain>/<family>/<member>",
+	methods=["GET", "OPTIONS"]
+)
 async def device(rq, host, port, domain, family, member):
 	device = "/".join((domain, family, member))
 	proxy = await getDeviceProxy(device)
@@ -119,7 +134,10 @@ async def device(rq, host, port, domain, family, member):
 	)
 
 
-@api_rc3.route("/hosts/<host>/<port:int>/devices/<domain>/<family>/<member>/state")
+@api_rc3.route(
+	"/hosts/<host>/<port:int>/devices/<domain>/<family>/<member>/state",
+	methods=["GET", "OPTIONS"]
+)
 async def device_state(rq, host, port, domain, family, member):
 	device = "/".join((domain, family, member))
 	proxy = await getDeviceProxy(device)
@@ -139,7 +157,10 @@ async def device_state(rq, host, port, domain, family, member):
 	)
 
 
-@api_rc3.route("/hosts/<host>/<port:int>/devices/<domain>/<family>/<member>/attributes")
+@api_rc3.route(
+	"/hosts/<host>/<port:int>/devices/<domain>/<family>/<member>/attributes",
+	methods=["GET", "OPTIONS"]
+)
 async def attributes(rq, host, port, domain, family, member):
 	device = "/".join((domain, family, member))
 	proxy = await getDeviceProxy(device)
@@ -159,7 +180,10 @@ async def attributes(rq, host, port, domain, family, member):
 
 
 # THIS NEEDS TO BE DEFINED BEFORE 'attribute' !!!
-@api_rc3.route("/hosts/<host>/<port:int>/devices/<domain>/<family>/<member>/attributes/value")
+@api_rc3.route(
+	"/hosts/<host>/<port:int>/devices/<domain>/<family>/<member>/attributes/value",
+	methods=["GET", "OPTIONS"]
+)
 async def alt_attribute_value(rq, host, port, domain, family, member):
 	data = []
 	for attr in rq.args["attr"]:
@@ -167,7 +191,10 @@ async def alt_attribute_value(rq, host, port, domain, family, member):
 	return json(data)
 
 
-@api_rc3.route("/hosts/<host>/<port:int>/devices/<domain>/<family>/<member>/attributes/<attr>")
+@api_rc3.route(
+	"/hosts/<host>/<port:int>/devices/<domain>/<family>/<member>/attributes/<attr>",
+	methods=["GET", "OPTIONS"]
+)
 async def attribute(rq, host, port, domain, family, member, attr):
 	device = "/".join((domain, family, member))
 	return json(
@@ -184,7 +211,10 @@ async def attribute(rq, host, port, domain, family, member, attr):
 	)
 
 
-@api_rc3.route("/hosts/<host>/<port:int>/devices/<domain>/<family>/<member>/attributes/<attr>/value")
+@api_rc3.route(
+	"/hosts/<host>/<port:int>/devices/<domain>/<family>/<member>/attributes/<attr>/value",
+	methods=["GET", "OPTIONS"]
+)
 async def attribute_value(rq, host, port, domain, family, member, attr, from_alt=False):
 	device = "/".join((domain, family, member))
 	proxy = await getDeviceProxy(device)
@@ -205,7 +235,10 @@ async def attribute_value(rq, host, port, domain, family, member, attr, from_alt
 	return data if from_alt else json(data)
 
 
-@api_rc3.route("/hosts/<host>/<port:int>/devices/<domain>/<family>/<member>/attributes/<attr>/info")
+@api_rc3.route(
+	"/hosts/<host>/<port:int>/devices/<domain>/<family>/<member>/attributes/<attr>/info",
+	methods=["GET", "OPTIONS"]
+)
 async def attribute_info(rq, host, port, domain, family, member, attr):
 	device = "/".join((domain, family, member))
 	proxy = await getDeviceProxy(device)
@@ -243,7 +276,10 @@ async def attribute_info(rq, host, port, domain, family, member, attr):
 	)
 
 
-@api_rc3.route("/hosts/<host>/<port:int>/devices/<domain>/<family>/<member>/attributes/<attr>/history")
+@api_rc3.route(
+	"/hosts/<host>/<port:int>/devices/<domain>/<family>/<member>/attributes/<attr>/history",
+	methods=["GET", "OPTIONS"]
+)
 async def attribute_history(rq, host, port, domain, family, member, attr):
 	attribute = "/".join((domain, family, member, attr))
 	proxy = await getAttributeProxy(attribute)
@@ -258,7 +294,10 @@ async def attribute_history(rq, host, port, domain, family, member, attr):
 	)
 
 
-@api_rc3.route("/hosts/<host>/<port:int>/devices/<domain>/<family>/<member>/attributes/<attr>/properties")
+@api_rc3.route(
+	"/hosts/<host>/<port:int>/devices/<domain>/<family>/<member>/attributes/<attr>/properties",
+	methods=["GET", "OPTIONS"]
+)
 async def attribute_properties(rq, host, port, domain, family, member, attr):
 	device = "/".join((domain, family, member))
 	props = db.get_device_attribute_property(device, attr)[attr]
@@ -270,7 +309,10 @@ async def attribute_properties(rq, host, port, domain, family, member, attr):
 	)
 
 
-@api_rc3.route("/hosts/<host>/<port:int>/devices/<domain>/<family>/<member>/commands")
+@api_rc3.route(
+	"/hosts/<host>/<port:int>/devices/<domain>/<family>/<member>/commands",
+	methods=["GET", "OPTIONS"]
+)
 async def commands(rq, host, port, domain, family, member):
 	device = "/".join((domain, family, member))
 	proxy = await getDeviceProxy(device)
@@ -297,7 +339,10 @@ async def commands(rq, host, port, domain, family, member):
 	return json(cmds_w_info)
 
 
-@api_rc3.route("/hosts/<host>/<port:int>/devices/<domain>/<family>/<member>/commands/<cmd>")
+@api_rc3.route(
+	"/hosts/<host>/<port:int>/devices/<domain>/<family>/<member>/commands/<cmd>",
+	methods=["GET", "OPTIONS"]
+)
 async def command(rq, host, port, domain, family, member, cmd):
 	device = "/".join((domain, family, member))
 	proxy = await getDeviceProxy(device)
@@ -322,7 +367,10 @@ async def command(rq, host, port, domain, family, member, cmd):
 	)
 
 
-@api_rc3.route("/hosts/<host>/<port:int>/devices/<domain>/<family>/<member>/commands/<cmd>/history")
+@api_rc3.route(
+	"/hosts/<host>/<port:int>/devices/<domain>/<family>/<member>/commands/<cmd>/history",
+	methods=["GET", "OPTIONS"]
+)
 async def command_history(rq, host, port, domain, family, member, cmd):
 	device = "/".join((domain, family, member))
 	proxy = await getDeviceProxy(device)
@@ -335,7 +383,10 @@ async def command_history(rq, host, port, domain, family, member, cmd):
 	)
 
 
-@api_rc3.route("/hosts/<host>/<port:int>/devices/<domain>/<family>/<member>/properties")
+@api_rc3.route(
+	"/hosts/<host>/<port:int>/devices/<domain>/<family>/<member>/properties",
+	methods=["GET", "OPTIONS"]
+)
 async def properties(rq, host, port, domain, family, member):
 	device = "/".join((domain, family, member))
 	proxy = await getDeviceProxy(device)
@@ -348,7 +399,10 @@ async def properties(rq, host, port, domain, family, member):
 	)
 
 
-@api_rc3.route("/hosts/<host>/<port:int>/devices/<domain>/<family>/<member>/pipes")
+@api_rc3.route(
+	"/hosts/<host>/<port:int>/devices/<domain>/<family>/<member>/pipes",
+	methods=["GET", "OPTIONS"]
+)
 async def pipes(rq, host, port, domain, family, member):
 	device = "/".join((domain, family, member))
 	proxy = await getDeviceProxy(device)
@@ -361,7 +415,10 @@ async def pipes(rq, host, port, domain, family, member):
 	)
 
 
-@api_rc3.route("/hosts/<host>/<port:int>/devices/<domain>/<family>/<member>/pipes/<pipe>")
+@api_rc3.route(
+	"/hosts/<host>/<port:int>/devices/<domain>/<family>/<member>/pipes/<pipe>",
+	methods=["GET", "OPTIONS"]
+)
 async def pipe(rq, host, port, domain, family, member, pipe):
 	device = "/".join((domain, family, member))
 	proxy = await getDeviceProxy(device)
