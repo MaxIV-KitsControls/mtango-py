@@ -3,6 +3,7 @@
 import resource
 from time import time
 
+import tango
 from sanic import Blueprint
 from sanic.response import json
 
@@ -164,5 +165,11 @@ async def active_attrs(rq):
 async def config(rq):
 	conf_keys = [k for k in conf.__dict__.keys() if not k.startswith("__") and k.lower() != "version"]
 	clean_conf = {k: getattr(conf, k) for k in conf_keys}
-	clean_conf.update({"version": str(conf.version)})		# version must be first converted to string
+	tango_host = tango.ApiUtil.get_env_var("TANGO_HOST")
+	clean_conf.update(
+		{
+			"version": str(conf.version),		# version must be first converted to string
+			"TANGO_HOST": tango_host
+		}
+	)
 	return json(clean_conf)
