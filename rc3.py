@@ -1,3 +1,5 @@
+""" Python implementation of mTango rc3 API """
+
 from time import time
 from sanic import Blueprint
 from sanic.response import json
