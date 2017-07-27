@@ -6,6 +6,7 @@ from sanic.response import json
 
 import conf
 from utils import buildurl
+from cache import deviceCache, attributeCache
 
 
 api_sys = Blueprint("sys")
@@ -56,7 +57,13 @@ async def clean_attrs(rq):
 	methods=["GET", "OPTIONS"]
 )
 async def active_devs(rq):
-	return json("not implemented yet")
+	return json(
+		[{
+			"device": k,
+			"created": v["created"],
+			"accessed": v["accessed"]
+		} for k, v in deviceCache.items()]
+	)
 
 
 @api_sys.route(
@@ -64,7 +71,13 @@ async def active_devs(rq):
 	methods=["GET", "OPTIONS"]
 )
 async def active_attrs(rq):
-	return json("not implemented yet")
+	return json(
+		[{
+			"attribute": k,
+			"created": v["created"],
+			"accessed": v["accessed"]
+		} for k, v in attributeCache.items()]
+	)
 
 
 @api_sys.route(
