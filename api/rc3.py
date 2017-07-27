@@ -188,8 +188,9 @@ async def attributes(rq, host, port, domain, family, member):
 )
 async def alt_attribute_value(rq, host, port, domain, family, member):
 	data = []
-	for attr in rq.args["attr"]:
-		data.append(await attribute_value(rq, host, port, domain, family, member, attr, from_alt=True))
+	if "attr" in rq.args:
+		for attr in rq.args["attr"]:
+			data.append(await attribute_value(rq, host, port, domain, family, member, attr, from_alt=True))
 	return json(data)
 
 
