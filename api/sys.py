@@ -85,4 +85,7 @@ async def active_attrs(rq):
 	methods=["GET", "OPTIONS"]
 )
 async def config(rq):
-	return json("not implemented yet")
+	conf_keys = [k for k in conf.__dict__.keys() if not k.startswith("__") and k.lower() != "version"]
+	clean_conf = {k: getattr(conf, k) for k in conf_keys}
+	clean_conf.update({"version": str(conf.version)})		# version must be first converted to string
+	return json(clean_conf)
