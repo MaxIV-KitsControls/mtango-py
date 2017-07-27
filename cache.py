@@ -6,7 +6,8 @@ attributeCache = {}
 
 
 async def getDeviceProxy(device):
-	if hasattr(deviceCache, device):
+	global deviceCache
+	if device in deviceCache:
 		proxy = deviceCache[device]["proxy"]
 		deviceCache[device]["accessed"] = time()
 	else:
@@ -20,7 +21,8 @@ async def getDeviceProxy(device):
 
 
 async def getAttributeProxy(attr):
-	if hasattr(attributeCache, attr):
+	global attributeCache
+	if attr in attributeCache:
 		proxy = attributeCache[attr]["proxy"]
 		attributeCache[attr]["accessed"] = time()
 	else:
