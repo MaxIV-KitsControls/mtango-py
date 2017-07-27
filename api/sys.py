@@ -80,7 +80,7 @@ async def stats(rq):
 	methods=["GET", "OPTIONS"]
 )
 async def clean_devs(rq):
-	return json("not implemented yet")
+	return await clean(rq, deviceCache)
 
 
 @api_sys.route(
@@ -88,7 +88,45 @@ async def clean_devs(rq):
 	methods=["GET", "OPTIONS"]
 )
 async def clean_attrs(rq):
-	return json("not implemented yet")
+	return await clean(rq, attributeCache)
+
+
+async def clean(rq, cache):
+	max_age = None
+	max_idle = None
+	removed_age = []
+	removed_idle = []
+	now = time()
+	if "max_age" in rq.args:
+		max_age = float(rq.args["max_age"][0])
+		for k, v in cache.items():
+			if now - v["created"] > max_age:
+				removed_age.append(k)
+		for k in removed_age:
+			del cache[k]
+	if "max_idle" in rq.args:
+		max_idle = float(rq.args["max_idle"][0])
+		for k, v in cache.items():
+			if now - v["accessed"] > max_idle:
+				removed_idle.append(k)
+		for k in removed_idle:
+			del cache[k]
+	if not (max_age or max_idle):
+		return json(
+			{
+				"parameters": {
+					"max_idle": "Remove proxies not used for at least <value> seconds.",
+					"max_age": "Remove proxies older than <value> seconds, regardless when they were last used."
+				}
+			}
+		)
+	else:
+		return json(
+			{
+				"removed_idle": removed_idle,
+				"removed_age": removed_age
+			}
+		)
 
 
 @api_sys.route(
