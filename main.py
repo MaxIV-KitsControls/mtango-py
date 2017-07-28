@@ -2,6 +2,7 @@ from time import time
 
 from sanic import Sanic
 from sanic.response import json
+from sanic.exceptions import SanicException
 from sanic_cors import CORS
 
 import conf
@@ -37,6 +38,21 @@ async def request_counter(request):
 async def response_counter(request, response):
 	""" Count responses """
 	stats.total_resp += 1
+
+
+# Error handlers
+@app.exception(SanicException)
+async def server_error(request, exception):
+	""" General exception handler """
+	return json(
+		{
+			"errors": exception.args,
+			"quality": "FAILURE",
+			"http_status": exception.status_code,
+			"timestamp": time()
+		},
+		status=exception.status_code
+	)
 
 
 # Application routes
