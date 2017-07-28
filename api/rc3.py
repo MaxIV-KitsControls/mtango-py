@@ -6,6 +6,7 @@ from sanic.response import json
 
 from tango import Database, CmdArgType, DevFailed
 
+import conf
 from utils import buildurl
 from cache import getDeviceProxy, getAttributeProxy
 
@@ -28,7 +29,7 @@ async def tango_error(request, exception):
 	return json(
 		{
 			"errors": errors,
-			"quality": "---",
+			"quality": "FAILURE",
 			"timestamp": int(time())
 		}
 	)
@@ -194,6 +195,19 @@ async def alt_attribute_value(rq, host, port, domain, family, member):
 	return json(data)
 
 
+# THIS NEEDS TO BE DEFINED BEFORE 'attribute' !!!
+@api_rc3.route(
+	"/hosts/<host>/<port:int>/devices/<domain>/<family>/<member>/attributes/info",
+	methods=["GET", "OPTIONS"]
+)
+async def alt_attribute_info(rq, host, port, domain, family, member):
+	data = []
+	if "attr" in rq.args:
+		for attr in rq.args["attr"]:
+			data.append(await attribute_info(rq, host, port, domain, family, member, attr, from_alt=True))
+	return json(data)
+
+
 @api_rc3.route(
 	"/hosts/<host>/<port:int>/devices/<domain>/<family>/<member>/attributes/<attr>",
 	methods=["GET", "OPTIONS"]
@@ -242,41 +256,41 @@ async def attribute_value(rq, host, port, domain, family, member, attr, from_alt
 	"/hosts/<host>/<port:int>/devices/<domain>/<family>/<member>/attributes/<attr>/info",
 	methods=["GET", "OPTIONS"]
 )
-async def attribute_info(rq, host, port, domain, family, member, attr):
+async def attribute_info(rq, host, port, domain, family, member, attr, from_alt=False):
 	device = "/".join((domain, family, member))
 	proxy = await getDeviceProxy(device)
-	attr_info = proxy.get_attribute_config_ex(attr)
-	return json(
-		{
-			"name": attr_info.name,
-			"writable": str(attr_info.writable),
-			"data_format": str(attr_info.data_format),
-			"data_type": str(attr_info.data_type),
-			"max_dim_x": attr_info.max_dim_x,
-			"max_dim_y": attr_info.max_dim_y,
-			"description": attr_info.description,
-			"label": attr_info.label,
-			"unit": attr_info.unit,
-			"standard_unit": attr_info.standard_unit,
-			"display_unit": attr_info.display_unit,
-			"format": attr_info.format,
-			"min_value": attr_info.min_value,
-			"max_value": attr_info.max_value,
-			"min_alarm": attr_info.min_alarm,
-			"max_alarm": attr_info.max_alarm,
-			"writable_attr_name": attr_info.writable_attr_name,
-			"level": str(attr_info.disp_level),
-			"extensions": attr_info.extensions,
-			"alarms": attr_info.alarms,
-			"events": attr_info.events,
-			"sys_extensions": attr_info.sys_extensions,
-			"isMemorized": "---",
-			"isSetAtInit": "---",
-			"memorized": str(attr_info.memorized),
-			"root_attr_name": attr_info.root_attr_name,
-			"enum_label": attr_info.enum_labels
-		}
-	)
+	attr_info = proxy.get_attribute_config_ex(attr)[0]
+	print(attr_info)
+	data = {
+		"name": attr_info.name,
+		"writable": str(attr_info.writable),
+		"data_format": str(attr_info.data_format),
+		"data_type": str(attr_info.data_type),
+		"max_dim_x": attr_info.max_dim_x,
+		"max_dim_y": attr_info.max_dim_y,
+		"description": attr_info.description,
+		"label": attr_info.label,
+		"unit": attr_info.unit,
+		"standard_unit": attr_info.standard_unit,
+		"display_unit": attr_info.display_unit,
+		"format": attr_info.format,
+		"min_value": attr_info.min_value,
+		"max_value": attr_info.max_value,
+		"min_alarm": attr_info.min_alarm,
+		"max_alarm": attr_info.max_alarm,
+		"writable_attr_name": attr_info.writable_attr_name,
+		"level": str(attr_info.disp_level),
+		"extensions": attr_info.extensions,
+		"alarms": attr_info.alarms,
+		"events": attr_info.events,
+		"sys_extensions": attr_info.sys_extensions,
+		"isMemorized": "---",
+		"isSetAtInit": "---",
+		"memorized": str(attr_info.memorized),
+		"root_attr_name": attr_info.root_attr_name,
+		"enum_label": attr_info.enum_labels
+	}
+	return data if from_alt else json(data)
 
 
 @api_rc3.route(
@@ -304,11 +318,27 @@ async def attribute_history(rq, host, port, domain, family, member, attr):
 async def attribute_properties(rq, host, port, domain, family, member, attr):
 	device = "/".join((domain, family, member))
 	props = db.get_device_attribute_property(device, attr)[attr]
-	return json(
-		[{
+	if conf.rc3_mode == "strict":
+		data = props
+	else:
+		data = [{
 			"name": k,
 			"_empty": not bool(len(v))		# don't ask me, mTango stuff...
 		} for k, v in props.items()]
+	return json(data)
+
+
+@api_rc3.route(
+	"/hosts/<host>/<port:int>/devices/<domain>/<family>/<member>/attributes/<attr>/properties/<prop>",
+	methods=["GET", "OPTIONS"]
+)
+async def attribute_property(rq, host, port, domain, family, member, attr, prop):
+	device = "/".join((domain, family, member))
+	props = db.get_device_attribute_property(device, attr)[attr]
+	return json(
+		{
+			prop: props[prop]
+		}
 	)
 
 
@@ -399,6 +429,22 @@ async def properties(rq, host, port, domain, family, member):
 			"name": prop,
 			"values": proxy.get_property(prop)[prop],
 		} for prop in props]
+	)
+
+
+@api_rc3.route(
+	"/hosts/<host>/<port:int>/devices/<domain>/<family>/<member>/properties/<prop>",
+	methods=["GET", "OPTIONS"]
+)
+async def property(rq, host, port, domain, family, member, prop):
+	device = "/".join((domain, family, member))
+	proxy = await getDeviceProxy(device)
+	values = proxy.get_property(prop)[prop]
+	return json(
+		{
+			"name": prop,
+			"values": values,
+		}
 	)
 
 
