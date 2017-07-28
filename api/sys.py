@@ -21,6 +21,7 @@ api_sys = Blueprint("sys")
 	methods=["GET", "OPTIONS"]
 )
 async def api_root(rq):
+	""" System API entry point: links to other functions """
 	return json(
 		{
 			"stats": buildurl(rq, "sys.stats"),
@@ -37,6 +38,7 @@ async def api_root(rq):
 	methods=["GET", "OPTIONS"]
 )
 async def stats(rq):
+	""" Server statistics """
 	usage = resource.getrusage(resource.RUSAGE_SELF)
 	return json(
 		{
@@ -81,6 +83,7 @@ async def stats(rq):
 	methods=["GET", "OPTIONS"]
 )
 async def clean_devs(rq):
+	""" DeviceProxy cache cleanup """
 	return await clean(rq, deviceCache)
 
 
@@ -89,10 +92,12 @@ async def clean_devs(rq):
 	methods=["GET", "OPTIONS"]
 )
 async def clean_attrs(rq):
+	""" AttributeProxy cache cleanup """
 	return await clean(rq, attributeCache)
 
 
 async def clean(rq, cache):
+	""" Generic cache cleanup """
 	max_age = None
 	max_idle = None
 	removed_age = []
@@ -135,6 +140,7 @@ async def clean(rq, cache):
 	methods=["GET", "OPTIONS"]
 )
 async def active_devs(rq):
+	""" List cached DeviceProxies """
 	return json(
 		[{
 			"device": k,
@@ -149,6 +155,7 @@ async def active_devs(rq):
 	methods=["GET", "OPTIONS"]
 )
 async def active_attrs(rq):
+	""" List cached AttributeProxies """
 	return json(
 		[{
 			"attribute": k,
@@ -163,6 +170,7 @@ async def active_attrs(rq):
 	methods=["GET", "OPTIONS"]
 )
 async def config(rq):
+	""" Display server configuration """
 	conf_keys = [k for k in conf.__dict__.keys() if not k.startswith("__") and k.lower() != "version"]
 	clean_conf = {k: getattr(conf, k) for k in conf_keys}
 	tango_host = tango.ApiUtil.get_env_var("TANGO_HOST")

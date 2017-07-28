@@ -18,6 +18,7 @@ tango_host = (db.get_db_host(), db.get_db_port())
 
 @api_rc3.exception(DevFailed)
 async def tango_error(request, exception):
+	""" Tango exceptions handler """
 	errors = []
 	for err in exception.args:
 		errors.append({
@@ -40,6 +41,7 @@ async def tango_error(request, exception):
 	methods=["GET", "OPTIONS"]
 )
 async def api_root(rq):
+	""" rc3 API entry point """
 	return json(
 		{
 			"hosts": buildurl(rq, "rc3.hosts"),
@@ -53,6 +55,9 @@ async def api_root(rq):
 	methods=["GET", "OPTIONS"]
 )
 async def hosts(rq):
+	""" List available TANGO_HOSTs
+		Actually, it returns only the system configured TANGO_HOST
+	"""
 	return json(
 		{
 			"%s:%s" % tango_host: buildurl(rq, "rc3.db_info", tango_host)
@@ -65,6 +70,7 @@ async def hosts(rq):
 	methods=["GET", "OPTIONS"]
 )
 async def db_info(rq, host, port):
+	""" Database information """
 	info = db.get_info()
 	return json(
 		{
@@ -82,6 +88,7 @@ async def db_info(rq, host, port):
 	methods=["GET", "OPTIONS"]
 )
 async def devices(rq, host, port):
+	""" Device list """
 	devs = []
 	domains = db.get_device_domain("*")
 	for d in domains:
@@ -103,6 +110,7 @@ async def devices(rq, host, port):
 	methods=["GET", "OPTIONS"]
 )
 async def device(rq, host, port, domain, family, member):
+	""" Device info """
 	device = "/".join((domain, family, member))
 	proxy = await getDeviceProxy(device)
 	import_info = proxy.import_info()
@@ -142,6 +150,7 @@ async def device(rq, host, port, domain, family, member):
 	methods=["GET", "OPTIONS"]
 )
 async def device_state(rq, host, port, domain, family, member):
+	""" Device state """
 	device = "/".join((domain, family, member))
 	proxy = await getDeviceProxy(device)
 	state = await proxy.State()
@@ -165,6 +174,7 @@ async def device_state(rq, host, port, domain, family, member):
 	methods=["GET", "OPTIONS"]
 )
 async def attributes(rq, host, port, domain, family, member):
+	""" Device attributes list """
 	device = "/".join((domain, family, member))
 	proxy = await getDeviceProxy(device)
 	attrs = proxy.get_attribute_list()
@@ -188,6 +198,7 @@ async def attributes(rq, host, port, domain, family, member):
 	methods=["GET", "OPTIONS"]
 )
 async def alt_attribute_value(rq, host, port, domain, family, member):
+	""" /Alternative/ method for getting attribute(s) value """
 	data = []
 	if "attr" in rq.args:
 		for attr in rq.args["attr"]:
@@ -201,6 +212,7 @@ async def alt_attribute_value(rq, host, port, domain, family, member):
 	methods=["GET", "OPTIONS"]
 )
 async def alt_attribute_info(rq, host, port, domain, family, member):
+	""" /Alternative/ method for getting attribute(s) info """
 	data = []
 	if "attr" in rq.args:
 		for attr in rq.args["attr"]:
@@ -213,6 +225,7 @@ async def alt_attribute_info(rq, host, port, domain, family, member):
 	methods=["GET", "OPTIONS"]
 )
 async def attribute(rq, host, port, domain, family, member, attr):
+	""" Links for different things for device attribute """
 	device = "/".join((domain, family, member))
 	return json(
 		{
@@ -233,6 +246,7 @@ async def attribute(rq, host, port, domain, family, member, attr):
 	methods=["GET", "OPTIONS"]
 )
 async def attribute_value(rq, host, port, domain, family, member, attr, from_alt=False):
+	""" Get attribute value """
 	device = "/".join((domain, family, member))
 	proxy = await getDeviceProxy(device)
 	attr_value = await proxy.read_attribute(attr)
@@ -257,6 +271,7 @@ async def attribute_value(rq, host, port, domain, family, member, attr, from_alt
 	methods=["GET", "OPTIONS"]
 )
 async def attribute_info(rq, host, port, domain, family, member, attr, from_alt=False):
+	""" Get attribute info """
 	device = "/".join((domain, family, member))
 	proxy = await getDeviceProxy(device)
 	attr_info = proxy.get_attribute_config_ex(attr)[0]
@@ -298,6 +313,7 @@ async def attribute_info(rq, host, port, domain, family, member, attr, from_alt=
 	methods=["GET", "OPTIONS"]
 )
 async def attribute_history(rq, host, port, domain, family, member, attr):
+	""" Get attribute history """
 	attribute = "/".join((domain, family, member, attr))
 	proxy = await getAttributeProxy(attribute)
 	hist = proxy.history(10)
@@ -316,6 +332,7 @@ async def attribute_history(rq, host, port, domain, family, member, attr):
 	methods=["GET", "OPTIONS"]
 )
 async def attribute_properties(rq, host, port, domain, family, member, attr):
+	""" Get attribute properties """
 	device = "/".join((domain, family, member))
 	props = db.get_device_attribute_property(device, attr)[attr]
 	if conf.rc3_mode == "strict":
@@ -333,6 +350,7 @@ async def attribute_properties(rq, host, port, domain, family, member, attr):
 	methods=["GET", "OPTIONS"]
 )
 async def attribute_property(rq, host, port, domain, family, member, attr, prop):
+	""" Display single attribute property """
 	device = "/".join((domain, family, member))
 	props = db.get_device_attribute_property(device, attr)[attr]
 	return json(
@@ -347,6 +365,7 @@ async def attribute_property(rq, host, port, domain, family, member, attr, prop)
 	methods=["GET", "OPTIONS"]
 )
 async def commands(rq, host, port, domain, family, member):
+	""" List of device commands """
 	device = "/".join((domain, family, member))
 	proxy = await getDeviceProxy(device)
 	cmds = proxy.get_command_list()
@@ -377,6 +396,7 @@ async def commands(rq, host, port, domain, family, member):
 	methods=["GET", "OPTIONS"]
 )
 async def command(rq, host, port, domain, family, member, cmd):
+	""" Display device command info """
 	device = "/".join((domain, family, member))
 	proxy = await getDeviceProxy(device)
 	info = proxy.get_command_config(cmd)
@@ -405,6 +425,7 @@ async def command(rq, host, port, domain, family, member, cmd):
 	methods=["GET", "OPTIONS"]
 )
 async def command_history(rq, host, port, domain, family, member, cmd):
+	""" Display device command history """
 	device = "/".join((domain, family, member))
 	proxy = await getDeviceProxy(device)
 	hist = proxy.command_history(cmd, 10)
@@ -421,6 +442,7 @@ async def command_history(rq, host, port, domain, family, member, cmd):
 	methods=["GET", "OPTIONS"]
 )
 async def properties(rq, host, port, domain, family, member):
+	""" Device property list """
 	device = "/".join((domain, family, member))
 	proxy = await getDeviceProxy(device)
 	props = proxy.get_property_list("*")
@@ -437,6 +459,7 @@ async def properties(rq, host, port, domain, family, member):
 	methods=["GET", "OPTIONS"]
 )
 async def property(rq, host, port, domain, family, member, prop):
+	""" Display device property value """
 	device = "/".join((domain, family, member))
 	proxy = await getDeviceProxy(device)
 	values = proxy.get_property(prop)[prop]
@@ -453,6 +476,7 @@ async def property(rq, host, port, domain, family, member, prop):
 	methods=["GET", "OPTIONS"]
 )
 async def pipes(rq, host, port, domain, family, member):
+	""" Device pipes list """
 	device = "/".join((domain, family, member))
 	proxy = await getDeviceProxy(device)
 	pipes = proxy.get_pipe_list()
@@ -469,6 +493,7 @@ async def pipes(rq, host, port, domain, family, member):
 	methods=["GET", "OPTIONS"]
 )
 async def pipe(rq, host, port, domain, family, member, pipe):
+	""" Display pipe info and contents """
 	device = "/".join((domain, family, member))
 	proxy = await getDeviceProxy(device)
 	value = await proxy.read_pipe(pipe)

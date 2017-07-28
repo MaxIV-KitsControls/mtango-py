@@ -1,3 +1,3 @@
-total_rq = 0
-total_resp = 0
-start_time = None
+total_rq = 0			# total requests
+total_resp = 0			# total responses
+start_time = None		# server start time

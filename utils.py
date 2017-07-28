@@ -1,4 +1,5 @@
 def buildurl(rq, handler, tango_host=None, device=None, **kwargs):
+	""" Build URL for specific endpoint """
 	if tango_host:
 		kwargs.update({"host": tango_host[0], "port": tango_host[1]})
 	if device:
@@ -8,6 +9,7 @@ def buildurl(rq, handler, tango_host=None, device=None, **kwargs):
 
 
 class Version(tuple):
+	""" Strigifiable and URLable version """
 	def _as_str_tuple(self):
 		return tuple(str(x) for x in self)
 

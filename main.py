@@ -22,23 +22,27 @@ CORS(app, supports_credentials=True)
 # Middleware functions
 @app.middleware("response")
 async def add_headers(request, response):
+	""" Add custom server headers """
 	response.headers["x-mtango"] = "mtango-py %s" % str(conf.version)
 	response.headers["x-clacks-overhead"] = "GNU Terry Pratchett"
 
 
 @app.middleware("request")
 async def request_counter(request):
+	""" Count requests """
 	stats.total_rq += 1
 
 
 @app.middleware("response")
 async def response_counter(request, response):
+	""" Count responses """
 	stats.total_resp += 1
 
 
 # Application routes
 @app.route(conf.app_base, methods=["GET", "OPTIONS"])
 async def list_api_versions(rq):
+	""" Application entry point: list available APIs """
 	return json(
 		{
 			"rc3": buildurl(rq, "rc3.api_root"),			# mTango rc3 API

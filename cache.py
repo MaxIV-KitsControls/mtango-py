@@ -6,6 +6,7 @@ attributeCache = {}
 
 
 async def getDeviceProxy(device):
+	""" Get or create DeviceProxy """
 	global deviceCache
 	if device in deviceCache:
 		proxy = deviceCache[device]["proxy"]
@@ -21,6 +22,7 @@ async def getDeviceProxy(device):
 
 
 async def getAttributeProxy(attr):
+	""" Get or create AttributeProxy """
 	global attributeCache
 	if attr in attributeCache:
 		proxy = attributeCache[attr]["proxy"]
