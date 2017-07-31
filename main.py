@@ -68,9 +68,10 @@ async def list_api_versions(rq):
 
 
 # Start server
-app.run(
-	host=conf.host,
-	port=conf.port,
-	workers=conf.workers,
-	debug=conf.debug
-)
+if __name__ == "__main__":
+	app.run(
+		host=conf.host,
+		port=conf.port,
+		workers=conf.workers,
+		debug=conf.debug
+	)
