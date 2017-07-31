@@ -4,16 +4,12 @@ sys.path.insert(0, ".")
 from conf import app_base
 from main import app
 
+from testconf import tango_host, device_name
 from testutils import *
 
 
-tango_host = None
-urltuple = None
-
-
-def create_url_tuple():
-	global urltuple
-	urltuple = (app_base,) + tuple(tango_host)
+urltuple_only_host = (app_base,) + tango_host
+urltuple = urltuple_only_host + (device_name,)
 
 
 def test_api_root():
@@ -24,19 +20,13 @@ def test_api_root():
 
 
 def test_hosts():
-	global tango_host
 	rq, rsp = app.test_client.get("%s/rc3/hosts" % app_base)
 	b = mtango_object(rsp)
-	try:
-		tango_host = list(b.keys())[0].split(":")
-	except:
-		assert False
-
-	create_url_tuple()		# create url tuple with discovered tango_host
+	assert b.keys()
 
 
 def test_db_info():
-	rq, rsp = app.test_client.get("%s/rc3/hosts/%s/%s" % urltuple)
+	rq, rsp = app.test_client.get("%s/rc3/hosts/%s/%s" % urltuple_only_host)
 	b = mtango_object(rsp)
 	assert "name" in b
 	assert "host" in b
@@ -46,15 +36,12 @@ def test_db_info():
 
 
 def test_devices():
-	global urltuple
-	rq, rsp = app.test_client.get("%s/rc3/hosts/%s/%s/devices" % urltuple)
+	rq, rsp = app.test_client.get("%s/rc3/hosts/%s/%s/devices" % urltuple_only_host)
 	b = mtango_list(rsp)
 	for dev in b:
 		assert type(dev) == dict
 		assert "name" in dev
 		assert "href" in dev
-
-	urltuple = urltuple + ("sys/tg_test/1",)		# update urltuple for further tests
 
 
 def test_device():
@@ -70,12 +57,12 @@ def test_device():
 	assert "_links" in b
 
 
-# def test_device_state():
-# 	rq, rsp = app.test_client.get("%s/rc3/hosts/%s/%s/devices/%s/state" % urltuple)
-# 	b = mtango_object(rsp)
-# 	assert "state" in b
-# 	assert "status" in b
-# 	assert "_links" in b
+def test_device_state():
+	rq, rsp = app.test_client.get("%s/rc3/hosts/%s/%s/devices/%s/state" % urltuple)
+	b = mtango_object(rsp)
+	assert "state" in b
+	assert "status" in b
+	assert "_links" in b
 
 
 def test_attributes():
@@ -91,26 +78,26 @@ def test_attributes():
 		assert "_links" in attr
 
 
-# def test_alt_attribute_value():
-# 	rq, rsp = app.test_client.get("%s/rc3/hosts/%s/%s/devices/%s/attributes/value?attr=double_scalar" % urltuple)
-# 	b = mtango_list(rsp)
-# 	for attr in b:
-# 		assert type(attr) == dict
-# 		assert "name" in attr
-# 		assert "value" in attr
-# 		assert "quality" in attr
-# 		assert "timestamp" in attr
+def test_alt_attribute_value():
+	rq, rsp = app.test_client.get("%s/rc3/hosts/10.81.0.101/10000/devices/%s/attributes/value?attr=double_scalar" % (app_base, "sys/tg_test/1"))
+	b = mtango_list(rsp)
+	for attr in b:
+		assert type(attr) == dict
+		assert "name" in attr
+		assert "value" in attr
+		assert "quality" in attr
+		assert "timestamp" in attr
 
 
-# def test_alt_attribute_value_multi():
-# 	rq, rsp = app.test_client.get("%s/rc3/hosts/%s/%s/devices/%s/attributes/value?attr=double_scalar&attr=long_scalar" % urltuple)
-# 	b = mtango_list(rsp)
-# 	for attr in b:
-# 		assert type(attr) == dict
-# 		assert "name" in attr
-# 		assert "value" in attr
-# 		assert "quality" in attr
-# 		assert "timestamp" in attr
+def test_alt_attribute_value_multi():
+	rq, rsp = app.test_client.get("%s/rc3/hosts/%s/%s/devices/%s/attributes/value?attr=double_scalar&attr=long_scalar" % urltuple)
+	b = mtango_list(rsp)
+	for attr in b:
+		assert type(attr) == dict
+		assert "name" in attr
+		assert "value" in attr
+		assert "quality" in attr
+		assert "timestamp" in attr
 
 
 def test_alt_attribute_info():
@@ -179,3 +166,14 @@ def test_alt_attribute_info_multi():
 		assert "memorized" in attr
 		assert "root_attr_name" in attr
 		assert "enum_label" in attr
+
+
+def test_attribute():
+	rq, rsp = app.test_client.get("%s/rc3/hosts/%s/%s/devices/%s/attributes/double_scalar" % urltuple)
+	b = mtango_object(rsp)
+	assert "name" in b
+	assert "value" in b
+	assert "info" in b
+	assert "properties" in b
+	assert "history" in b
+	assert "_links" in b
