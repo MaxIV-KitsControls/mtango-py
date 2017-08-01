@@ -228,3 +228,10 @@ tests/test_sys.py .........
 
 ====== 34 passed in 5.44 seconds ======
 ```
+
+## End notes
+This project is distributed under GNU GPL 3.0 license. Full text of the license can be found in `LICENSE` file in the repository main directory.
+
+Application server was tested only on GNU/Linux operating system, but should work also under other OSes.
+
+The original mTango project can be found [-> here <-](https://github.com/tango-controls/rest-api).
