@@ -55,6 +55,10 @@ async def server_error(request, exception):
 	)
 
 
+# Static files - Swagger definitions
+app.static("/swagger/rc3.yml", "doc/swagger_rc3.yml")
+
+
 # Application routes
 @app.route(conf.app_base, methods=["GET", "OPTIONS"])
 async def list_api_versions(rq):
