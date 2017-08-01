@@ -5,7 +5,7 @@ from utils import Version
 app_base = "/tango/rest"
 
 # Server version
-version = Version([0, 0, 4, "testing"])
+version = Version([0, 1, 0, "alpha"])
 
 # No of worker processes
 workers = 4
