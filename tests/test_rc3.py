@@ -295,7 +295,7 @@ def test_pipes():
 
 
 def test_pipe():
-	rq, rsp = app.test_client.get("%s/rc3/hosts/%s/%s/devices/sys/tg_test/1/pipes/!P" % urltuple)
+	rq, rsp = app.test_client.get("%s/rc3/hosts/%s/%s/devices/sys/tg_test/1/pipes/string_long_short_ro" % urltuple)
 	b = mtango_object(rsp)
 	assert "name" in b
 	assert "size" in b
