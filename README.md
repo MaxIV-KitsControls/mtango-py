@@ -163,6 +163,14 @@ Available endpoints:
   }
   ```
 
+### Swagger
+The application provides three Swagger description files:
+* `/swagger/main.yml` - description of application entry point
+* `/swagger/rc3.yml` - mTango rc3 API
+* `/swagger/sys.yml` - mtango-py system API
+
+Keep in mind, that if you change `app_base` in the configuration, you should also change `basePath`s in Swagger files for them to work.
+
 ## Configuration
 The configuration is stored in `conf.py` file in the repository main directory.  
 The available options are:
