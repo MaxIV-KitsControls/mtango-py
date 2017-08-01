@@ -1,0 +1,21 @@
+swagger: "2.0"
+info:
+  title: mtango-py entry point
+  description: Entry point for mtango-py application
+  version: 0.0.4-testing
+
+basePath: /tango/rest
+schemes:
+  - http
+
+paths:
+
+  /:
+    get:
+      summary: mtango-py entry point
+      description: List of available APIs
+      produces:
+        - application/json
+      responses:
+        200:
+          description: OK

@@ -1,0 +1,786 @@
+swagger: "2.0"
+info:
+  title: mTango REST API
+  description: RESTful API for Tango Control System
+  version: rc3-py-0
+
+basePath: /tango/rest/rc3
+schemes:
+  - http
+
+paths:
+
+  /:
+    get:
+      summary: API entry point
+      description: Provides authorization method and a link to host list
+      produces:
+        - application/json
+      responses:
+        200:
+          description: OK
+
+  /hosts:
+    get:
+      summary: Hosts list
+      description: Display available TANGO_HOSTS
+      produces:
+        - application/json
+      responses:
+        200:
+          description: OK
+
+  /hosts/{host}/{port}:
+    get:
+      summary: Tango database info
+      description: Provides information regarding Tango database
+      parameters:
+        - in: path
+          name: host
+          type: string
+          required: true
+          description: Tango database host
+        - in: path
+          name: port
+          type: integer
+          required: true
+          description: Tango database port
+      produces:
+        - application/json
+      responses:
+        200:
+          description: OK
+
+  /hosts/{host}/{port}/devices:
+    get:
+      summary: Devices list
+      description: All devices configured for given database
+      parameters:
+        - in: path
+          name: host
+          type: string
+          required: true
+          description: Tango database host
+        - in: path
+          name: port
+          type: integer
+          required: true
+          description: Tango database port
+      produces:
+        - application/json
+      responses:
+        200:
+          description: OK
+
+  /hosts/{host}/{port}/devices/{domain}/{family}/{member}:
+    get:
+      summary: Device info
+      description: Information about a specific device
+      parameters:
+        - in: path
+          name: host
+          type: string
+          required: true
+          description: Tango database host
+        - in: path
+          name: port
+          type: integer
+          required: true
+          description: Tango database port
+        - in: path
+          name: domain
+          type: string
+          required: true
+          description: Device name - domain
+        - in: path
+          name: family
+          type: string
+          required: true
+          description: Device name - family
+        - in: path
+          name: member
+          type: string
+          required: true
+          description: Device name - member
+      produces:
+        - application/json
+      responses:
+        200:
+          description: OK
+
+  /hosts/{host}/{port}/devices/{domain}/{family}/{member}/state:
+    get:
+      summary: Device state
+      description: Returns device state
+      parameters:
+        - in: path
+          name: host
+          type: string
+          required: true
+          description: Tango database host
+        - in: path
+          name: port
+          type: integer
+          required: true
+          description: Tango database port
+        - in: path
+          name: domain
+          type: string
+          required: true
+          description: Device name - domain
+        - in: path
+          name: family
+          type: string
+          required: true
+          description: Device name - family
+        - in: path
+          name: member
+          type: string
+          required: true
+          description: Device name - member
+      produces:
+        - application/json
+      responses:
+        200:
+          description: OK
+
+  /hosts/{host}/{port}/devices/{domain}/{family}/{member}/attributes:
+    get:
+      summary: Device attributes
+      description: List of device attributes
+      parameters:
+        - in: path
+          name: host
+          type: string
+          required: true
+          description: Tango database host
+        - in: path
+          name: port
+          type: integer
+          required: true
+          description: Tango database port
+        - in: path
+          name: domain
+          type: string
+          required: true
+          description: Device name - domain
+        - in: path
+          name: family
+          type: string
+          required: true
+          description: Device name - family
+        - in: path
+          name: member
+          type: string
+          required: true
+          description: Device name - member
+      produces:
+        - application/json
+      responses:
+        200:
+          description: OK
+
+  /hosts/{host}/{port}/devices/{domain}/{family}/{member}/attributes/value:
+    get:
+      summary: Attribute value
+      description: Reads attribute value
+      parameters:
+        - in: path
+          name: host
+          type: string
+          required: true
+          description: Tango database host
+        - in: path
+          name: port
+          type: integer
+          required: true
+          description: Tango database port
+        - in: path
+          name: domain
+          type: string
+          required: true
+          description: Device name - domain
+        - in: path
+          name: family
+          type: string
+          required: true
+          description: Device name - family
+        - in: path
+          name: member
+          type: string
+          required: true
+          description: Device name - member
+        - in: query
+          name: attr
+          type: string
+          required: false
+          description: Attribute name
+      produces:
+        - application/json
+      responses:
+        200:
+          description: OK
+
+  /hosts/{host}/{port}/devices/{domain}/{family}/{member}/attributes/info:
+    get:
+      summary: Attribute info
+      description: Returns the information about the attribute
+      parameters:
+        - in: path
+          name: host
+          type: string
+          required: true
+          description: Tango database host
+        - in: path
+          name: port
+          type: integer
+          required: true
+          description: Tango database port
+        - in: path
+          name: domain
+          type: string
+          required: true
+          description: Device name - domain
+        - in: path
+          name: family
+          type: string
+          required: true
+          description: Device name - family
+        - in: path
+          name: member
+          type: string
+          required: true
+          description: Device name - member
+        - in: query
+          name: attr
+          type: string
+          required: false
+          description: Attribute name
+      produces:
+        - application/json
+      responses:
+        200:
+          description: OK
+
+  /hosts/{host}/{port}/devices/{domain}/{family}/{member}/attributes/{attr}:
+    get:
+      summary: Attribute
+      description: Provides links for the attribute actions
+      parameters:
+        - in: path
+          name: host
+          type: string
+          required: true
+          description: Tango database host
+        - in: path
+          name: port
+          type: integer
+          required: true
+          description: Tango database port
+        - in: path
+          name: domain
+          type: string
+          required: true
+          description: Device name - domain
+        - in: path
+          name: family
+          type: string
+          required: true
+          description: Device name - family
+        - in: path
+          name: member
+          type: string
+          required: true
+          description: Device name - member
+        - in: path
+          name: attr
+          type: string
+          required: true
+          description: Attribute name
+      produces:
+        - application/json
+      responses:
+        200:
+          description: OK
+
+  /hosts/{host}/{port}/devices/{domain}/{family}/{member}/attributes/{attr}/value:
+    get:
+      summary: Attribute value
+      description: Reads the attribute value
+      parameters:
+        - in: path
+          name: host
+          type: string
+          required: true
+          description: Tango database host
+        - in: path
+          name: port
+          type: integer
+          required: true
+          description: Tango database port
+        - in: path
+          name: domain
+          type: string
+          required: true
+          description: Device name - domain
+        - in: path
+          name: family
+          type: string
+          required: true
+          description: Device name - family
+        - in: path
+          name: member
+          type: string
+          required: true
+          description: Device name - member
+        - in: path
+          name: attr
+          type: string
+          required: true
+          description: Attribute name
+      produces:
+        - application/json
+      responses:
+        200:
+          description: OK
+
+  /hosts/{host}/{port}/devices/{domain}/{family}/{member}/attributes/{attr}/info:
+    get:
+      summary: Attribute info
+      description: Returns the information about the attribute
+      parameters:
+        - in: path
+          name: host
+          type: string
+          required: true
+          description: Tango database host
+        - in: path
+          name: port
+          type: integer
+          required: true
+          description: Tango database port
+        - in: path
+          name: domain
+          type: string
+          required: true
+          description: Device name - domain
+        - in: path
+          name: family
+          type: string
+          required: true
+          description: Device name - family
+        - in: path
+          name: member
+          type: string
+          required: true
+          description: Device name - member
+        - in: path
+          name: attr
+          type: string
+          required: true
+          description: Attribute name
+      produces:
+        - application/json
+      responses:
+        200:
+          description: OK
+
+  /hosts/{host}/{port}/devices/{domain}/{family}/{member}/attributes/{attr}/history:
+    get:
+      summary: Attribute history
+      description: Returns the attribute history
+      parameters:
+        - in: path
+          name: host
+          type: string
+          required: true
+          description: Tango database host
+        - in: path
+          name: port
+          type: integer
+          required: true
+          description: Tango database port
+        - in: path
+          name: domain
+          type: string
+          required: true
+          description: Device name - domain
+        - in: path
+          name: family
+          type: string
+          required: true
+          description: Device name - family
+        - in: path
+          name: member
+          type: string
+          required: true
+          description: Device name - member
+        - in: path
+          name: attr
+          type: string
+          required: true
+          description: Attribute name
+      produces:
+        - application/json
+      responses:
+        200:
+          description: OK
+
+  /hosts/{host}/{port}/devices/{domain}/{family}/{member}/attributes/{attr}/properties:
+    get:
+      summary: Attribute properties
+      description: List of attribute properties
+      parameters:
+        - in: path
+          name: host
+          type: string
+          required: true
+          description: Tango database host
+        - in: path
+          name: port
+          type: integer
+          required: true
+          description: Tango database port
+        - in: path
+          name: domain
+          type: string
+          required: true
+          description: Device name - domain
+        - in: path
+          name: family
+          type: string
+          required: true
+          description: Device name - family
+        - in: path
+          name: member
+          type: string
+          required: true
+          description: Device name - member
+        - in: path
+          name: attr
+          type: string
+          required: true
+          description: Attribute name
+      produces:
+        - application/json
+      responses:
+        200:
+          description: OK
+
+  /hosts/{host}/{port}/devices/{domain}/{family}/{member}/attributes/{attr}/properties/{prop}:
+    get:
+      summary: Attribute property
+      description: Returns attribute property value
+      parameters:
+        - in: path
+          name: host
+          type: string
+          required: true
+          description: Tango database host
+        - in: path
+          name: port
+          type: integer
+          required: true
+          description: Tango database port
+        - in: path
+          name: domain
+          type: string
+          required: true
+          description: Device name - domain
+        - in: path
+          name: family
+          type: string
+          required: true
+          description: Device name - family
+        - in: path
+          name: member
+          type: string
+          required: true
+          description: Device name - member
+        - in: path
+          name: attr
+          type: string
+          required: true
+          description: Attribute name
+        - in: path
+          name: prop
+          type: string
+          required: true
+          description: Property name
+      produces:
+        - application/json
+      responses:
+        200:
+          description: OK
+
+  /hosts/{host}/{port}/devices/{domain}/{family}/{member}/commands:
+    get:
+      summary: Device commands
+      description: List of device commands
+      parameters:
+        - in: path
+          name: host
+          type: string
+          required: true
+          description: Tango database host
+        - in: path
+          name: port
+          type: integer
+          required: true
+          description: Tango database port
+        - in: path
+          name: domain
+          type: string
+          required: true
+          description: Device name - domain
+        - in: path
+          name: family
+          type: string
+          required: true
+          description: Device name - family
+        - in: path
+          name: member
+          type: string
+          required: true
+          description: Device name - member
+      produces:
+        - application/json
+      responses:
+        200:
+          description: OK
+
+  /hosts/{host}/{port}/devices/{domain}/{family}/{member}/commands/{cmd}:
+    get:
+      summary: Command info
+      description: Returns information about a device command
+      parameters:
+        - in: path
+          name: host
+          type: string
+          required: true
+          description: Tango database host
+        - in: path
+          name: port
+          type: integer
+          required: true
+          description: Tango database port
+        - in: path
+          name: domain
+          type: string
+          required: true
+          description: Device name - domain
+        - in: path
+          name: family
+          type: string
+          required: true
+          description: Device name - family
+        - in: path
+          name: member
+          type: string
+          required: true
+          description: Device name - member
+        - in: path
+          name: cmd
+          type: string
+          required: true
+          description: Command name
+      produces:
+        - application/json
+      responses:
+        200:
+          description: OK
+
+  /hosts/{host}/{port}/devices/{domain}/{family}/{member}/commands/{cmd}/history:
+    get:
+      summary: Command history
+      description: Returns command history
+      parameters:
+        - in: path
+          name: host
+          type: string
+          required: true
+          description: Tango database host
+        - in: path
+          name: port
+          type: integer
+          required: true
+          description: Tango database port
+        - in: path
+          name: domain
+          type: string
+          required: true
+          description: Device name - domain
+        - in: path
+          name: family
+          type: string
+          required: true
+          description: Device name - family
+        - in: path
+          name: member
+          type: string
+          required: true
+          description: Device name - member
+        - in: path
+          name: cmd
+          type: string
+          required: true
+          description: Command name
+      produces:
+        - application/json
+      responses:
+        200:
+          description: OK
+
+  /hosts/{host}/{port}/devices/{domain}/{family}/{member}/properties:
+    get:
+      summary: Device properties
+      description: List of device properties
+      parameters:
+        - in: path
+          name: host
+          type: string
+          required: true
+          description: Tango database host
+        - in: path
+          name: port
+          type: integer
+          required: true
+          description: Tango database port
+        - in: path
+          name: domain
+          type: string
+          required: true
+          description: Device name - domain
+        - in: path
+          name: family
+          type: string
+          required: true
+          description: Device name - family
+        - in: path
+          name: member
+          type: string
+          required: true
+          description: Device name - member
+      produces:
+        - application/json
+      responses:
+        200:
+          description: OK
+
+  /hosts/{host}/{port}/devices/{domain}/{family}/{member}/properties/{prop}:
+    get:
+      summary: Device property
+      description: Returns value of the device property
+      parameters:
+        - in: path
+          name: host
+          type: string
+          required: true
+          description: Tango database host
+        - in: path
+          name: port
+          type: integer
+          required: true
+          description: Tango database port
+        - in: path
+          name: domain
+          type: string
+          required: true
+          description: Device name - domain
+        - in: path
+          name: family
+          type: string
+          required: true
+          description: Device name - family
+        - in: path
+          name: member
+          type: string
+          required: true
+          description: Device name - member
+        - in: path
+          name: prop
+          type: string
+          required: true
+          description: Property name
+      produces:
+        - application/json
+      responses:
+        200:
+          description: OK
+
+  /hosts/{host}/{port}/devices/{domain}/{family}/{member}/pipes:
+    get:
+      summary: Device pipes
+      description: List of device pipes
+      parameters:
+        - in: path
+          name: host
+          type: string
+          required: true
+          description: Tango database host
+        - in: path
+          name: port
+          type: integer
+          required: true
+          description: Tango database port
+        - in: path
+          name: domain
+          type: string
+          required: true
+          description: Device name - domain
+        - in: path
+          name: family
+          type: string
+          required: true
+          description: Device name - family
+        - in: path
+          name: member
+          type: string
+          required: true
+          description: Device name - member
+      produces:
+        - application/json
+      responses:
+        200:
+          description: OK
+
+  /hosts/{host}/{port}/devices/{domain}/{family}/{member}/pipes/{pipe}:
+    get:
+      summary: Device pipe
+      description: Contents of the pipe
+      parameters:
+        - in: path
+          name: host
+          type: string
+          required: true
+          description: Tango database host
+        - in: path
+          name: port
+          type: integer
+          required: true
+          description: Tango database port
+        - in: path
+          name: domain
+          type: string
+          required: true
+          description: Device name - domain
+        - in: path
+          name: family
+          type: string
+          required: true
+          description: Device name - family
+        - in: path
+          name: member
+          type: string
+          required: true
+          description: Device name - member
+        - in: path
+          name: pipe
+          type: string
+          required: true
+          description: Pipe name
+      produces:
+        - application/json
+      responses:
+        200:
+          description: OK
