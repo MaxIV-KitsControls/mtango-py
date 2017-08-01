@@ -12,7 +12,7 @@ paths:
 
   /:
     get:
-      summary: API entry pointeger
+      summary: API entry point
       description: Provides authorization method and a link to host list
       produces:
         - application/json

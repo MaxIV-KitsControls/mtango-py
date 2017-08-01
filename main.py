@@ -57,6 +57,7 @@ async def server_error(request, exception):
 
 # Static files - Swagger definitions
 app.static("/swagger/rc3.yml", "doc/swagger_rc3.yml")
+app.static("/swagger/sys.yml", "doc/swagger_sys.yml")
 
 
 # Application routes

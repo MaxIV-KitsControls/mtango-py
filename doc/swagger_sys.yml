@@ -1,0 +1,103 @@
+swagger: "2.0"
+info:
+  title: mtango-py system API
+  description: System API for controlling and statistics of mtango-py server
+  version: sys-0
+
+basePath: /tango/rest/sys
+schemes:
+  - http
+
+paths:
+
+  /:
+    get:
+      summary: API entry point
+      description: Provides links for API functions
+      produces:
+        - application/json
+      responses:
+        200:
+          description: OK
+
+  /stats:
+    get:
+      summary: Server statistics
+      description: Server process statistics
+      produces:
+        - application/json
+      responses:
+        200:
+          description: OK
+
+  /clean/devices:
+    get:
+      summary: Remove unused DeviceProxies
+      description: Removes proxies that were not used recently or are too old
+      parameters:
+        - in: query
+          name: max_age
+          type: integer
+          required: false
+          description: Proxy maximum age (seconds)
+        - in: query
+          name: max_idle
+          type: integer
+          required: false
+          description: Proxy maximum idle time (seconds)
+      produces:
+        - application/json
+      responses:
+        200:
+          description: OK
+
+  /clean/attributes:
+    get:
+      summary: Remove unused AttributeProxies
+      description: Removes proxies that were not used recently or are too old
+      parameters:
+        - in: query
+          name: max_age
+          type: integer
+          required: false
+          description: Proxy maximum age (seconds)
+        - in: query
+          name: max_idle
+          type: integer
+          required: false
+          description: Proxy maximum idle time (seconds)
+      produces:
+        - application/json
+      responses:
+        200:
+          description: OK
+
+  /active/devices:
+    get:
+      summary: Active DeviceProxies
+      description: List of cached DeviceProxies
+      produces:
+        - application/json
+      responses:
+        200:
+          description: OK
+
+  /active/attributes:
+    get:
+      summary: Active AttributeProxies
+      description: List of cached AttributeProxies
+      produces:
+        - application/json
+      responses:
+        200:
+          description: OK
+
+  /config:
+    get:
+      summary: Configuration dump
+      description: Lists server configuration
+      produces:
+        - application/json
+      responses:
+        200:
+          description: OK
