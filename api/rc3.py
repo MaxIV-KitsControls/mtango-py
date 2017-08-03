@@ -275,7 +275,6 @@ async def attribute_info(rq, host, port, domain, family, member, attr, from_alt=
 	device = "/".join((domain, family, member))
 	proxy = await getDeviceProxy(device)
 	attr_info = proxy.get_attribute_config_ex(attr)[0]
-	print(attr_info)
 	data = {
 		"name": attr_info.name,
 		"writable": str(attr_info.writable),
