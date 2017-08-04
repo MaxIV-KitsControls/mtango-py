@@ -17,6 +17,7 @@ The documentation for `rc3` API can be found [-> here <-](http://tango-rest-api.
 
 ##### Differences between original and Python implementation
 mtango-py supports only reading data from Tango. That means that only `GET` and `OPTIONS` HTTP methods are implemented.  
+For all endpoints and methods described in the API documentation but not implemented in mtango-py the server will return HTTP `501 Not Implemented` response.  
 There is no support for authorization in the current version, all auth details provided will just be ignored.  
 The `TANGO_HOST` part of the URL is only for the compability, regardless of the values passed there, the server will always use system-wide `TANGO_HOST` for database connection.  
 Currently, there is no support for filters and ranges.  
