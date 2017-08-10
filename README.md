@@ -195,6 +195,15 @@ The available options are:
 * sanic-cors
 
 ## Running
+The fastest and easiest way to get started with mtango-py is using `conda`.
+
+1. Download and install `miniconda` (https://conda.io/miniconda.html).
+2. Enable conda environment by running `. $CONDA_ROOT/bin/activate`.
+3. Create environment with Python 3.5: `conda create -n mtango-py python=3.5`
+4. Activate your new environment: `. activate mtango-py`
+5. Install PyTango with all dependencies: `conda install -c tango-controls pytango`
+6. Install Sanic: `pip install sanic sanic-cors`
+
 To start the server run `python main.py` in the main directory.
 
 ## Testing
