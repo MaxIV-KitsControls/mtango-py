@@ -164,6 +164,12 @@ Available endpoints:
   }
   ```
 
+> **IMPORTANT NOTE !**
+> Functions related to process statistics and proxy caches (`sys/stats`, `sys/active/*` and `sys/clean/*`) 
+> have known problems when using more than 1 worker process. Data returned and actions performed are tied
+> to worker process that happens to handle your request.
+> This is considered a work in progress feature.
+
 ### Swagger
 The application provides three Swagger description files:
 * `/swagger/main.yml` - description of application entry point
