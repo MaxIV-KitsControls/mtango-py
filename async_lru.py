@@ -23,8 +23,9 @@ def async_lru(maxsize=128):
 				cache.hits += 1
 			except KeyError:
 				cache.misses += 1
-				if len(cache) >= maxsize:
-					cache.popitem(last=False)
+				if maxsize is not None:
+					if len(cache) >= maxsize:
+						cache.popitem(last=False)
 				cache[key] = await fn(*args, **kwargs)
 			return cache[key]
 
