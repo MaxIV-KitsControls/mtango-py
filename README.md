@@ -62,35 +62,23 @@ Available endpoints:
     "workers": 4
   }
   ```
-* `<base>/sys/active/devices` _List of active DeviceProxies_
+* `<base>/sys/cache/devices` _DeviceProxies cache info_
   ```
-  [
-    {
-      "accessed": 1501581533.4803078,
-      "device": "sys/tg_test/1",
-      "created": 1501581533.4803076
-    },
-    {
-      "accessed": 1501581546.2169743,
-      "device": "sys/database/2",
-      "created": 1501581546.216974
-    }
-  ]
+  {
+    "currsize": 6,
+    "maxsize": 64,
+    "misses": 6,
+    "hits": 2
+  }
   ```
-* `<base>/sys/active/attributes` _List of active AttributeProxies_
+* `<base>/sys/cache/attributes` _AttributeProxies cache info_
   ```
-  [
-    {
-      "accessed": 1501581631.0580325,
-      "created": 1501581631.0580323,
-      "attribute": "sys/tg_test/1/long_scalar"
-    },
-    {
-      "accessed": 1501581611.1534731,
-      "created": 1501581611.153473,
-      "attribute": "sys/tg_test/1/double_scalar"
-    }
-  ]
+  {
+    "currsize": 1,
+    "maxsize": 64,
+    "misses": 1,
+    "hits": 0
+  }
   ```
 * `<base>/sys/stats` _Server process statistics_
   ```
@@ -129,45 +117,16 @@ Available endpoints:
     }
   }
   ```
-* `<base>/sys/clean/devices` _Remove unused DeviceProxies_  
-	This function takes one or both of two arguments: `max_age` and `max_idle`.  
-    `max_age` removes the proxy if it's older than `max_age` seconds.  
-    `max_idle` removes the proxy if it was not accessed for at least `max_idle`. seconds.  
-    Output for `<base>/sys/clean/devices?max_idle=100`:
-  ```
-  {
-    "removed_age": [],
-    "removed_idle": [
-      "sys/tg_test/1",
-      "sys/database/2"
-    ]
-  }
-  ```
-* `<base>/sys/clean/attributes` _Remove unused AttributeProxies_  
-	Parameters for this call are the same as for the `clean/devices`
-    The purpose for this and previous endpoint is to implement a configurable garbage collection system, they are intended to be used e.g. from cron scripts.
-  ```
-  {
-    "removed_age": [
-      "sys/tg_test/1/double_scalar"
-    ],
-    "removed_idle": []
-  }
-  ```
-* If you call any of the previous two functions without parameters, you will get a message with the description.
-  ```
-  {
-    "parameters": {
-      "max_age": "Remove proxies older than <value> seconds, regardless when they were last used.",
-      "max_idle": "Remove proxies not used for at least <value> seconds."
-    }
-  }
-  ```
+* `<base>/sys/clean/devices` _Invalidate DeviceProxy cache_  
+  This function does not return any content, only a `204 No Content` HTTP response.
+* `<base>/sys/clean/attributes` _Invalidate AttributeProxy cache_  
+  This function does not return any content, only a `204 No Content` HTTP response.
 
 > **IMPORTANT NOTE !**
-> Functions related to process statistics and proxy caches (`sys/stats`, `sys/active/*` and `sys/clean/*`) 
+> Functions related to process statistics and proxy caches (`sys/stats`, `sys/cache/*` and `sys/clean/*`) 
 > have known problems when using more than 1 worker process. Data returned and actions performed are tied
 > to worker process that happens to handle your request.
+> Current implementation (`lru_cache` based) could be not affected by this, however this is a subject to some more extensive testing.
 > This is considered a work in progress feature.
 
 ### Swagger

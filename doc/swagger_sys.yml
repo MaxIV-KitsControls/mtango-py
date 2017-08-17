@@ -32,60 +32,34 @@ paths:
 
   /clean/devices:
     get:
-      summary: Remove unused DeviceProxies
-      description: Removes proxies that were not used recently or are too old
-      parameters:
-        - in: query
-          name: max_age
-          type: integer
-          required: false
-          description: Proxy maximum age (seconds)
-        - in: query
-          name: max_idle
-          type: integer
-          required: false
-          description: Proxy maximum idle time (seconds)
-      produces:
-        - application/json
+      summary: Clean DeviceProxies cache
+      description: Invalidates DeviceProxy cache
       responses:
-        200:
-          description: OK
+        204:
+          description: No Content
 
   /clean/attributes:
     get:
-      summary: Remove unused AttributeProxies
-      description: Removes proxies that were not used recently or are too old
-      parameters:
-        - in: query
-          name: max_age
-          type: integer
-          required: false
-          description: Proxy maximum age (seconds)
-        - in: query
-          name: max_idle
-          type: integer
-          required: false
-          description: Proxy maximum idle time (seconds)
+      summary: Clean AttributeProxies cache
+      description: Invalidates AttributeProxy cache
+      responses:
+        204:
+          description: No Content
+
+  /cache/devices:
+    get:
+      summary: DeviceProxies cache info
+      description: Cache statistics for DeviceProxy cache
       produces:
         - application/json
       responses:
         200:
           description: OK
 
-  /active/devices:
+  /cache/attributes:
     get:
-      summary: Active DeviceProxies
-      description: List of cached DeviceProxies
-      produces:
-        - application/json
-      responses:
-        200:
-          description: OK
-
-  /active/attributes:
-    get:
-      summary: Active AttributeProxies
-      description: List of cached AttributeProxies
+      summary: AttributeProxies cache info
+      description: Cache statistics for AttributeProxy cache
       produces:
         - application/json
       responses:
