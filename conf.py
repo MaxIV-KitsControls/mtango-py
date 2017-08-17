@@ -24,3 +24,7 @@ port = 8000
 # 	implementation = follow existing mTango rc3 implementation
 # The strict mode doesn't disable endpoints not supported in original mTango
 rc3_mode = "strict"
+
+# Proxy cache size (works best when a power of two, if set to None,
+# cache grows indefinitely and nothing is removed)
+cache_size = 64
