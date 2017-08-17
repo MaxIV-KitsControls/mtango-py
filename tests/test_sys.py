@@ -32,52 +32,30 @@ def test_stats():
 
 def test_clean_devs():
 	rq, rsp = app.test_client.get("%s/sys/clean/devices" % app_base)
-	b = mtango_object(rsp)
-	assert "parameters" in b
+	mtango_empty(rsp)
 
 
 def test_clean_attrs():
 	rq, rsp = app.test_client.get("%s/sys/clean/attributes" % app_base)
+	mtango_empty(rsp)
+
+
+def test_cache_devs():
+	rq, rsp = app.test_client.get("%s/sys/cache/devices" % app_base)
 	b = mtango_object(rsp)
-	assert "parameters" in b
+	assert "hits" in b
+	assert "misses" in b
+	assert "currsize" in b
+	assert "maxsize" in b
 
 
-def test_clean_devs_w_param():
-	rq, rsp = app.test_client.get("%s/sys/clean/devices?max_age=100" % app_base)
+def test_cache_attrs():
+	rq, rsp = app.test_client.get("%s/sys/cache/attributes" % app_base)
 	b = mtango_object(rsp)
-	assert "removed_idle" in b
-	assert "removed_age" in b
-
-
-def test_clean_attrs_w_param():
-	rq, rsp = app.test_client.get("%s/sys/clean/attributes?max_idle=100" % app_base)
-	b = mtango_object(rsp)
-	assert "removed_idle" in b
-	assert "removed_age" in b
-
-
-def test_active_devs():
-	# first create DeviceProxy
-	app.test_client.get("%s/rc3/hosts/%s/%s/devices/sys/tg_test/1" % ((app_base,) + tango_host))
-
-	rq, rsp = app.test_client.get("%s/sys/active/devices" % app_base)
-	b = mtango_list(rsp)
-	for dev in b:
-		assert "device" in dev
-		assert "created" in dev
-		assert "accessed" in dev
-
-
-def test_active_attrs():
-	# first create AttributeProxy
-	app.test_client.get("%s/rc3/hosts/%s/%s/devices/sys/tg_test/1/double_scalar/history" % ((app_base,) + tango_host))
-
-	rq, rsp = app.test_client.get("%s/sys/active/attributes" % app_base)
-	b = mtango_list(rsp)
-	for attr in b:
-		assert "attribute" in attr
-		assert "created" in attr
-		assert "accessed" in attr
+	assert "hits" in b
+	assert "misses" in b
+	assert "currsize" in b
+	assert "maxsize" in b
 
 
 def test_config():

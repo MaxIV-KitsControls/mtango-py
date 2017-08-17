@@ -126,7 +126,6 @@ Available endpoints:
 > Functions related to process statistics and proxy caches (`sys/stats`, `sys/cache/*` and `sys/clean/*`) 
 > have known problems when using more than 1 worker process. Data returned and actions performed are tied
 > to worker process that happens to handle your request.
-> Current implementation (`lru_cache` based) could be not affected by this, however this is a subject to some more extensive testing.
 > This is considered a work in progress feature.
 
 ### Swagger

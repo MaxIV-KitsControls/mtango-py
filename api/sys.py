@@ -43,8 +43,8 @@ async def stats(rq):
 	return json(
 		{
 			"proxies": {
-				"device": getDeviceProxy.cache_info().currsize,
-				"attribute": getAttributeProxy.cache_info().currsize
+				"device": getDeviceProxy.cache_info()["currsize"],
+				"attribute": getAttributeProxy.cache_info()["currsize"]
 			},
 			"time": time(),
 			"running_since": stats_module.start_time,
@@ -104,15 +104,7 @@ async def clean_attrs(rq):
 )
 async def cache_devs(rq):
 	""" DeviceProxies cache info """
-	info = getDeviceProxy.cache_info()
-	return json(
-		{
-			"hits": info.hits,
-			"misses": info.misses,
-			"maxsize": info.maxsize,
-			"currsize": info.currsize
-		}
-	)
+	return json(getDeviceProxy.cache_info())
 
 
 @api_sys.route(
@@ -121,15 +113,7 @@ async def cache_devs(rq):
 )
 async def cache_attrs(rq):
 	""" AttributeProxies cache info """
-	info = getAttributeProxy.cache_info()
-	return json(
-		{
-			"hits": info.hits,
-			"misses": info.misses,
-			"maxsize": info.maxsize,
-			"currsize": info.currsize
-		}
-	)
+	return json(getAttributeProxy.cache_info())
 
 
 @api_sys.route(
