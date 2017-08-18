@@ -9,6 +9,7 @@ from tango import Database, CmdArgType, DevFailed
 import conf
 from utils import buildurl
 from cache import getDeviceProxy, getAttributeProxy
+from exceptions import HTTP501_NotImplemented
 
 
 api_rc3 = Blueprint("rc3")
@@ -195,10 +196,12 @@ async def attributes(rq, host, port, domain, family, member):
 # THIS NEEDS TO BE DEFINED BEFORE 'attribute' !!!
 @api_rc3.route(
 	"/hosts/<host>/<port:int>/devices/<domain>/<family>/<member>/attributes/value",
-	methods=["GET", "OPTIONS"]
+	methods=["GET", "OPTIONS", "PUT"]
 )
 async def alt_attribute_value(rq, host, port, domain, family, member):
 	""" /Alternative/ method for getting attribute(s) value """
+	if rq.method == "PUT":
+		raise HTTP501_NotImplemented
 	data = []
 	if "attr" in rq.args:
 		for attr in rq.args["attr"]:
@@ -243,10 +246,12 @@ async def attribute(rq, host, port, domain, family, member, attr):
 
 @api_rc3.route(
 	"/hosts/<host>/<port:int>/devices/<domain>/<family>/<member>/attributes/<attr>/value",
-	methods=["GET", "OPTIONS"]
+	methods=["GET", "OPTIONS", "PUT"]
 )
 async def attribute_value(rq, host, port, domain, family, member, attr, from_alt=False):
 	""" Get attribute value """
+	if rq.method == "PUT":
+		raise HTTP501_NotImplemented
 	device = "/".join((domain, family, member))
 	proxy = await getDeviceProxy(device)
 	attr_value = await proxy.read_attribute(attr)
@@ -268,14 +273,15 @@ async def attribute_value(rq, host, port, domain, family, member, attr, from_alt
 
 @api_rc3.route(
 	"/hosts/<host>/<port:int>/devices/<domain>/<family>/<member>/attributes/<attr>/info",
-	methods=["GET", "OPTIONS"]
+	methods=["GET", "OPTIONS", "PUT"]
 )
 async def attribute_info(rq, host, port, domain, family, member, attr, from_alt=False):
 	""" Get attribute info """
+	if rq.method == "PUT":
+		raise HTTP501_NotImplemented
 	device = "/".join((domain, family, member))
 	proxy = await getDeviceProxy(device)
 	attr_info = proxy.get_attribute_config_ex(attr)[0]
-	print(attr_info)
 	data = {
 		"name": attr_info.name,
 		"writable": str(attr_info.writable),
@@ -347,10 +353,12 @@ async def attribute_properties(rq, host, port, domain, family, member, attr):
 
 @api_rc3.route(
 	"/hosts/<host>/<port:int>/devices/<domain>/<family>/<member>/attributes/<attr>/properties/<prop>",
-	methods=["GET", "OPTIONS"]
+	methods=["GET", "OPTIONS", "PUT", "DELETE"]
 )
 async def attribute_property(rq, host, port, domain, family, member, attr, prop):
 	""" Display single attribute property """
+	if rq.method in ("PUT", "DELETE"):
+		raise HTTP501_NotImplemented
 	device = "/".join((domain, family, member))
 	props = db.get_device_attribute_property(device, attr)[attr]
 	return json(
@@ -393,10 +401,12 @@ async def commands(rq, host, port, domain, family, member):
 
 @api_rc3.route(
 	"/hosts/<host>/<port:int>/devices/<domain>/<family>/<member>/commands/<cmd>",
-	methods=["GET", "OPTIONS"]
+	methods=["GET", "OPTIONS", "PUT"]
 )
 async def command(rq, host, port, domain, family, member, cmd):
 	""" Display device command info """
+	if rq.method == "PUT":
+		raise HTTP501_NotImplemented
 	device = "/".join((domain, family, member))
 	proxy = await getDeviceProxy(device)
 	info = proxy.get_command_config(cmd)
@@ -439,10 +449,12 @@ async def command_history(rq, host, port, domain, family, member, cmd):
 
 @api_rc3.route(
 	"/hosts/<host>/<port:int>/devices/<domain>/<family>/<member>/properties",
-	methods=["GET", "OPTIONS"]
+	methods=["GET", "OPTIONS", "PUT", "POST"]
 )
 async def properties(rq, host, port, domain, family, member):
 	""" Device property list """
+	if rq.method in ("PUT", "POST"):
+		raise HTTP501_NotImplemented
 	device = "/".join((domain, family, member))
 	proxy = await getDeviceProxy(device)
 	props = proxy.get_property_list("*")
@@ -456,10 +468,12 @@ async def properties(rq, host, port, domain, family, member):
 
 @api_rc3.route(
 	"/hosts/<host>/<port:int>/devices/<domain>/<family>/<member>/properties/<prop>",
-	methods=["GET", "OPTIONS"]
+	methods=["GET", "OPTIONS", "PUT", "POST", "DELETE"]
 )
 async def property(rq, host, port, domain, family, member, prop):
 	""" Display device property value """
+	if rq.method in ("PUT", "POST", "DELETE"):
+		raise HTTP501_NotImplemented
 	device = "/".join((domain, family, member))
 	proxy = await getDeviceProxy(device)
 	values = proxy.get_property(prop)[prop]
@@ -490,10 +504,12 @@ async def pipes(rq, host, port, domain, family, member):
 
 @api_rc3.route(
 	"/hosts/<host>/<port:int>/devices/<domain>/<family>/<member>/pipes/<pipe>",
-	methods=["GET", "OPTIONS"]
+	methods=["GET", "OPTIONS", "PUT"]
 )
 async def pipe(rq, host, port, domain, family, member, pipe):
 	""" Display pipe info and contents """
+	if rq.method == "PUT":
+		raise HTTP501_NotImplemented
 	device = "/".join((domain, family, member))
 	proxy = await getDeviceProxy(device)
 	value = await proxy.read_pipe(pipe)
@@ -514,3 +530,27 @@ async def pipe(rq, host, port, domain, family, member, pipe):
 			}
 		}
 	)
+
+
+@api_rc3.route(
+	"/hosts/<host>/<port:int>/devices/<domain>/<family>/<member>/attributes/<attr>/change",
+	methods=["GET", "OPTIONS"]
+)
+async def change_event(rq, host, port, domain, family, member, attr):
+	raise HTTP501_NotImplemented
+
+
+@api_rc3.route(
+	"/hosts/<host>/<port:int>/devices/<domain>/<family>/<member>/attributes/<attr>/periodic",
+	methods=["GET", "OPTIONS"]
+)
+async def periodic_event(rq, host, port, domain, family, member, attr):
+	raise HTTP501_NotImplemented
+
+
+@api_rc3.route(
+	"/hosts/<host>/<port:int>/devices/<domain>/<family>/<member>/attributes/<attr>/user",
+	methods=["GET", "OPTIONS"]
+)
+async def user_event(rq, host, port, domain, family, member, attr):
+	raise HTTP501_NotImplemented

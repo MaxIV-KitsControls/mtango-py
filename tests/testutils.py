@@ -46,3 +46,7 @@ def mtango_object(rsp):
 	assert is_valid_json(rsp)
 	assert is_object(rsp)
 	return body(rsp)
+
+def mtango_empty(rsp):
+	assert status(rsp, 204)
+	assert xmtango(rsp)
