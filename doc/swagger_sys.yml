@@ -1,0 +1,77 @@
+swagger: "2.0"
+info:
+  title: mtango-py system API
+  description: System API for controlling and statistics of mtango-py server
+  version: sys-0
+
+basePath: /tango/rest/sys
+schemes:
+  - http
+
+paths:
+
+  /:
+    get:
+      summary: API entry point
+      description: Provides links for API functions
+      produces:
+        - application/json
+      responses:
+        200:
+          description: OK
+
+  /stats:
+    get:
+      summary: Server statistics
+      description: Server process statistics
+      produces:
+        - application/json
+      responses:
+        200:
+          description: OK
+
+  /clean/devices:
+    get:
+      summary: Clean DeviceProxies cache
+      description: Invalidates DeviceProxy cache
+      responses:
+        204:
+          description: No Content
+
+  /clean/attributes:
+    get:
+      summary: Clean AttributeProxies cache
+      description: Invalidates AttributeProxy cache
+      responses:
+        204:
+          description: No Content
+
+  /cache/devices:
+    get:
+      summary: DeviceProxies cache info
+      description: Cache statistics for DeviceProxy cache
+      produces:
+        - application/json
+      responses:
+        200:
+          description: OK
+
+  /cache/attributes:
+    get:
+      summary: AttributeProxies cache info
+      description: Cache statistics for AttributeProxy cache
+      produces:
+        - application/json
+      responses:
+        200:
+          description: OK
+
+  /config:
+    get:
+      summary: Configuration dump
+      description: Lists server configuration
+      produces:
+        - application/json
+      responses:
+        200:
+          description: OK
