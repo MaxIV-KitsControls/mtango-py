@@ -4,7 +4,7 @@ from time import time
 from sanic import Blueprint
 from sanic.response import json
 
-from tango import Database, CmdArgType, DevFailed
+from tango import Database, CmdArgType, DevFailed, ArgType
 
 import conf
 from utils import buildurl
@@ -286,7 +286,7 @@ async def attribute_info(rq, host, port, domain, family, member, attr, from_alt=
 		"name": attr_info.name,
 		"writable": str(attr_info.writable),
 		"data_format": str(attr_info.data_format),
-		"data_type": str(attr_info.data_type),
+		"data_type": ArgType.values[attr_info.data_type].name,
 		"max_dim_x": attr_info.max_dim_x,
 		"max_dim_y": attr_info.max_dim_y,
 		"description": attr_info.description,
