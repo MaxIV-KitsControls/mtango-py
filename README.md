@@ -174,12 +174,12 @@ To start the server run `python main.py` in the main directory.
 
 ### Requirements
 
-Tests require `pytest` and `pytest-xdist` packages.  
+Tests require `pytest`, `pytest-xdist`, `aiohttp` (for Sanic test) packages.  
 For all tests to pass you have to have several things configured in Tango database:
 * `TangoTest` device named `sys/tg_test/1`
 * `double_scalar` attribute is polled
 * `State` command is polled
-* `abs_change` property is set for `double_scalar` attribute
+* `my_attribute_property` property is set for `double_scalar` attribute
 * Tango 9 (for pipes)
 * `string_long_short_ro` pipe should be defined
 

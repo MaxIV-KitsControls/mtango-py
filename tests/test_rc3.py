@@ -236,7 +236,7 @@ def test_attribute_properties():
 
 
 def test_attribute_property():
-	rq, rsp = app.test_client.get("%s/rc3/hosts/%s/%s/devices/sys/tg_test/1/attributes/double_scalar/properties/abs_change" % urltuple)
+	rq, rsp = app.test_client.get("%s/rc3/hosts/%s/%s/devices/sys/tg_test/1/attributes/double_scalar/properties/my_attribute_property" % urltuple)
 	mtango_object(rsp)
 
 
@@ -259,6 +259,17 @@ def test_command():
 	assert "history" in b
 	assert "_links" in b
 
+def test_alt_command_void():
+	rq, rsp = app.test_client.put("%s/rc3/hosts/%s/%s/devices/sys/tg_test/1/commands/DevVoid" % urltuple)
+	b = mtango_object(rsp)
+	assert "name" in b
+	assert "output" not in b
+
+def test_alt_command_string():
+	rq, rsp = app.test_client.put("%s/rc3/hosts/%s/%s/devices/sys/tg_test/1/commands/DevString" % urltuple, data="TEST mtango-py")
+	b = mtango_object(rsp)
+	assert "name" in b
+	assert "output" in b
 
 def test_command_history():
 	rq, rsp = app.test_client.get("%s/rc3/hosts/%s/%s/devices/sys/tg_test/1/commands/State/history" % urltuple)

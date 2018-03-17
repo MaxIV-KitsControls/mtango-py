@@ -404,14 +404,20 @@ async def commands(rq, host, port, domain, family, member):
 	methods=["GET", "OPTIONS", "PUT"]
 )
 async def command(rq, host, port, domain, family, member, cmd):
-	""" Display device command info """
-	if rq.method == "PUT":
-		raise HTTP501_NotImplemented
+	""" Display device command info  or Execute a command"""
+	result = {} 
 	device = "/".join((domain, family, member))
 	proxy = await getDeviceProxy(device)
-	info = proxy.get_command_config(cmd)
-	return json(
-		{
+	if rq.method == "PUT":
+	    # Set None if no argument for DevVoid Argin
+	    argument = rq.body or None
+	    output = await proxy.command_inout(cmd, argument)
+	    result = { "name": cmd }
+	    if output:
+	        result["output"] = output
+	else:
+	    info = proxy.get_command_config(cmd)
+	    result = {
 			"name": cmd,
 			"info": {
 				"cmd_name": info.cmd_name,
@@ -427,7 +433,8 @@ async def command(rq, host, port, domain, family, member, cmd):
 				"_self": buildurl(rq, "rc3.command", tango_host, device, cmd=cmd)
 			}
 		}
-	)
+
+	return json(result)
 
 
 @api_rc3.route(
