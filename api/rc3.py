@@ -408,15 +408,18 @@ async def command(rq, host, port, domain, family, member, cmd):
 	result = {} 
 	device = "/".join((domain, family, member))
 	proxy = await getDeviceProxy(device)
+	info = proxy.get_command_config(cmd)
 	if rq.method == "PUT":
 	    # Set None if no argument for DevVoid Argin
-	    argument = rq.body or None
+	    if str(info.in_type) == "DevVarStringArray":
+                argument = rq.body.decode().split(',')
+	    else:
+	        argument = rq.body or None
 	    output = await proxy.command_inout(cmd, argument)
 	    result = { "name": cmd }
 	    if output:
 	        result["output"] = output
 	else:
-	    info = proxy.get_command_config(cmd)
 	    result = {
 			"name": cmd,
 			"info": {
