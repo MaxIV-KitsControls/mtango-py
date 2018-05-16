@@ -1,3 +1,5 @@
+import re
+
 def buildurl(rq, handler, tango_host=None, device=None, **kwargs):
 	""" Build URL for specific endpoint """
 	if tango_host:
@@ -27,3 +29,23 @@ class Version(tuple):
 
 	def url(self):
 		return "/".join(self._as_str_tuple())
+
+
+def device_filtering(devices, filters=None, range=None):
+	if filters:
+		domain = filters.get("domain", ".*")
+		family = filters.get("family", ".*")
+		member = filters.get("member", ".*")
+		wildcard = filters.get("wildcard")
+		if wildcard:
+			r = re.compile(wildcard, re.IGNORECASE)
+			devices = list(filter(r.search, devices))
+		else:
+			regex = '{}/{}/{}'.format(domain, family, member)
+			r = re.compile(regex, re.IGNORECASE)
+			devices = list(filter(r.match, devices))
+	if range:
+		range = range[0].split('-')
+		devices = devices[int(range[0]):int(range[1])]
+
+	return devices

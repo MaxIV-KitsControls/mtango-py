@@ -7,7 +7,7 @@ from sanic.response import json
 from tango import Database, CmdArgType, DevFailed, ArgType
 
 import conf
-from utils import buildurl
+from utils import buildurl, device_filtering
 from cache import getDeviceProxy, getAttributeProxy
 from exceptions import HTTP501_NotImplemented
 
@@ -89,15 +89,18 @@ async def db_info(rq, host, port):
 	methods=["GET", "OPTIONS"]
 )
 async def devices(rq, host, port):
-	""" Device list """
+	""" Device list 
+	url args can be ?domain=reg1&family=reg2&member=reg3&wildcard=sys/tg_test&range=0-25
+	if pattern is present the other filters are ignored
+	"""
 	devs = []
-	domains = db.get_device_domain("*")
-	for d in domains:
-		families = db.get_device_family("%s/*" % d)
-		for f in families:
-			members = db.get_device_member("%s/%s/*" % (d, f))
-			for m in members:
-				devs.append('/'.join((d, f, m)))
+
+	dev_range = rq.args.pop("range", None)
+	filters = rq.args
+	db_proxy = await getDeviceProxy('sys/database/2')
+	devs = await db_proxy.DbGetDeviceList(['*','*'])
+	devs = device_filtering(devs, filters, dev_range)
+
 	return json(
 		[{
 			"name": dev,
