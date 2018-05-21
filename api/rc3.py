@@ -260,7 +260,7 @@ async def attribute_value(rq, host, port, domain, family, member, attr, from_alt
             
 
 	if rq.method == "PUT":
-	    text = rq.args["v"] if "v" in rq.args else rq.body
+	    text = rq.args["v"][0] if "v" in rq.args else rq.body
 	    # TODO: This is inefficient to check the type before to call
 	    # the write the attribute.
 	    if "AttributeProxy" in features:
