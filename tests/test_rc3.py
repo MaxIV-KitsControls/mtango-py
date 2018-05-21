@@ -88,6 +88,7 @@ def test_alt_attribute_value():
 		assert "timestamp" in attr
 
 
+
 def test_alt_attribute_value_multi():
 	rq, rsp = app.test_client.get("%s/rc3/hosts/%s/%s/devices/sys/tg_test/1/attributes/value?attr=double_scalar&attr=long_scalar" % urltuple)
 	b = mtango_list(rsp)
@@ -186,6 +187,13 @@ def test_attribute_value():
 	assert "quality" in b
 	assert "timestamp" in b
 
+def test_write_scalar_attribute():
+	rq, rsp = app.test_client.put("%s/rc3/hosts/%s/%s/devices/sys/tg_test/1/attributes/double_scalar/value?async=true" % urltuple, data="3.14")
+	mtango_async(rsp)
+
+def test_write_scalar_attribute_arg():
+	rq, rsp = app.test_client.put("%s/rc3/hosts/%s/%s/devices/sys/tg_test/1/attributes/double_scalar/value?async=true&v=3.14" % urltuple)
+	mtango_async(rsp)
 
 def test_attribute_info():
 	rq, rsp = app.test_client.get("%s/rc3/hosts/%s/%s/devices/sys/tg_test/1/attributes/double_scalar/info" % urltuple)
