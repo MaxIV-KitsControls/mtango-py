@@ -12,13 +12,17 @@ from utils import buildurl
 from api.rc3 import api_rc3
 from api.sys import api_sys
 
+import logging
+
 stats.start_time = time()
 
 app = Sanic(__name__)
+app.config['CORS_AUTOMATIC_OPTIONS'] = True
 app.blueprint(api_rc3, url_prefix="%s/rc3" % conf.app_base)
 app.blueprint(api_sys, url_prefix="%s/sys" % conf.app_base)
-CORS(app, supports_credentials=True)
+CORS(app, supports_credentials=True, automatic_options=True, resources={r"%s/*" % conf.app_base: {"origins": "*"}}, allow_headers=['*'] )
 
+#logging.getLogger('sanic_cors').level = logging.DEBUG
 
 # Middleware functions
 @app.middleware("response")
