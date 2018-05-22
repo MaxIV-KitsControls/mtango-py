@@ -20,4 +20,4 @@ RUN apt-get update && \
 WORKDIR mtango-py
 RUN git checkout -b develop
 
-CMD  /bin/bash -c "source activate mtango-py &&gunicorn main:app --bind 0.0.0.0:8000 --worker-class sanic.worker.GunicornWorker"
+CMD  /bin/bash -c "source activate mtango-py && python main.py"
