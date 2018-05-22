@@ -42,6 +42,22 @@ def test_devices():
 		assert "name" in dev
 		assert "href" in dev
 
+def test_devices_range():
+	rq, rsp = app.test_client.get("%s/rc3/hosts/%s/%s/devices?range=0-20" % urltuple)
+	b = mtango_list(rsp)
+	for dev in b:
+		assert type(dev) == dict
+		assert "name" in dev
+		assert "href" in dev
+	assert len(b) <= 20
+
+def test_devices_wildcard():
+	rq, rsp = app.test_client.get("%s/rc3/hosts/%s/%s/devices?wildcard=sys/tg_test*" % urltuple)
+	b = mtango_list(rsp)
+	for dev in b:
+		assert type(dev) == dict
+		assert "name" in dev
+		assert "href" in dev
 
 def test_device():
 	rq, rsp = app.test_client.get("%s/rc3/hosts/%s/%s/devices/sys/tg_test/1" % urltuple)
