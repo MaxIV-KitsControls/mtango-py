@@ -50,3 +50,7 @@ def mtango_object(rsp):
 def mtango_empty(rsp):
 	assert status(rsp, 204)
 	assert xmtango(rsp)
+
+def mtango_async(rsp):
+	assert status(rsp, 200)
+	assert xmtango(rsp)

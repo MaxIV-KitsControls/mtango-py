@@ -4,12 +4,14 @@ from time import time
 from sanic import Blueprint
 from sanic.response import json
 
-from tango import Database, CmdArgType, DevFailed, ArgType
+from tango import Database, CmdArgType, DevFailed, ArgType, AttrDataFormat
 
 import conf
 from utils import buildurl, device_filtering
-from cache import getDeviceProxy, getAttributeProxy
+from utils import buildurl
+from cache import getDeviceProxy, getAttributeProxy, getAttributeConfig, convertAttributeValue, getDeviceAttributeConfig
 from exceptions import HTTP501_NotImplemented
+from features import features
 
 
 api_rc3 = Blueprint("rc3")
@@ -253,23 +255,59 @@ async def attribute(rq, host, port, domain, family, member, attr):
 )
 async def attribute_value(rq, host, port, domain, family, member, attr, from_alt=False):
 	""" Get attribute value """
-	if rq.method == "PUT":
-		raise HTTP501_NotImplemented
-	device = "/".join((domain, family, member))
-	proxy = await getDeviceProxy(device)
-	attr_value = await proxy.read_attribute(attr)
-
-	if attr_value.type in (CmdArgType.DevState,):
-		value = str(attr_value.value)
+	if "AttributeProxy" in features:
+	    attribute = "/".join((domain, family, member, attr))
+	    aproxy = await getAttributeProxy(attribute)
 	else:
-		value = attr_value.value
+	    device = "/".join((domain, family, member))
+	    dproxy = await getDeviceProxy(device)
+            
 
-	data = {
-		"name": attr_value.name,
-		"value": value,
-		"quality": str(attr_value.quality),
-		"timestamp": attr_value.time.tv_sec
-	}
+	if rq.method == "PUT":
+	    text = rq.args["v"][0] if "v" in rq.args else rq.body
+	    # TODO: This is inefficient to check the type before to call
+	    # the write the attribute.
+	    if "AttributeProxy" in features:
+	        config = await getAttributeConfig(aproxy)
+	    else:
+	        config = await getDeviceAttributeConfig(dproxy, attr)
+
+            # The text is converted in the right format
+	    if config.data_format == AttrDataFormat.SCALAR:
+	        value = convertAttributeValue(config, text)
+	    else:
+	        raise HTTP501_NotImplemented
+
+
+	    if "AttributeProxy" in features:
+	        output = await aproxy.write(value)
+	    else:
+	        print(type(value))
+	        output = await dproxy.write_attribute(attr, value)
+
+            #Process the response if sync mode
+	    if "async" in rq.args and rq.args["async"]:
+	        data = None
+	    else:
+	        raise HTTP501_NotImplemented
+
+	else:
+	    if "AttributeProxy" in features:
+	        attr_value = await aproxy.read()
+	    else:
+	        attr_value = await dproxy.read_attribute(attr)
+
+	    if attr_value.type in (CmdArgType.DevState,):
+	        value = str(attr_value.value)
+	    else:
+	        value = attr_value.value
+
+	    data = {
+	    	"name": attr_value.name,
+	    	"value": value,
+	    	"quality": str(attr_value.quality),
+	    	"timestamp": attr_value.time.tv_sec
+	    }
 
 	return data if from_alt else json(data)
 
@@ -411,15 +449,18 @@ async def command(rq, host, port, domain, family, member, cmd):
 	result = {} 
 	device = "/".join((domain, family, member))
 	proxy = await getDeviceProxy(device)
+	info = proxy.get_command_config(cmd)
 	if rq.method == "PUT":
 	    # Set None if no argument for DevVoid Argin
-	    argument = rq.body or None
+	    if str(info.in_type) == "DevVarStringArray":
+                argument = rq.body.decode().split(',')
+	    else:
+	        argument = rq.body or None
 	    output = await proxy.command_inout(cmd, argument)
 	    result = { "name": cmd }
 	    if output:
 	        result["output"] = output
 	else:
-	    info = proxy.get_command_config(cmd)
 	    result = {
 			"name": cmd,
 			"info": {
