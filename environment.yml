@@ -1,0 +1,87 @@
+name: mtango-py
+channels:
+- tango-controls
+- defaults
+dependencies:
+- aiohttp=2.3.9=py35_0
+- apipkg=1.4=py35h53e6e68_0
+- async-timeout=2.0.0=py35h12a94dc_0
+- attrs=17.4.0=py35_0
+- boost=1.61.0=py35_0
+- ca-certificates=2017.08.26=h1d4fec5_0
+- certifi=2018.1.18=py35_0
+- chardet=3.0.4=py35hb6e9ddf_1
+- decorator=4.2.1=py35_0
+- execnet=1.5.0=py35h6c6e770_0
+- icu=54.1=0
+- idna=2.6=py35h8605a33_1
+- intel-openmp=2018.0.0=hc7b2577_8
+- ipython=6.2.1=py35hd850d2a_1
+- ipython_genutils=0.2.0=py35hc9e07d0_0
+- jedi=0.11.1=py35_0
+- libedit=3.1=heed3624_0
+- libffi=3.2.1=hd88cf55_4
+- libgcc=7.2.0=h69d50b8_2
+- libgcc-ng=7.2.0=h7cc24e2_2
+- libgfortran-ng=7.2.0=h9f7466a_2
+- libsodium=1.0.15=hf101ebd_0
+- libstdcxx-ng=7.2.0=h7a57d05_2
+- mkl=2018.0.1=h19d6760_4
+- multidict=4.1.0=py35h14c3975_0
+- ncurses=6.0=h9df7e31_2
+- numpy=1.14.0=py35h3dfced4_1
+- openssl=1.0.2n=hb7f436b_0
+- parso=0.1.1=py35h1b200a3_0
+- pexpect=4.4.0=py35_0
+- pickleshare=0.7.4=py35hd57304d_0
+- pip=9.0.1=py35h7e7da9d_4
+- pluggy=0.6.0=py35hb428803_0
+- prompt_toolkit=1.0.15=py35hc09de7a_0
+- ptyprocess=0.5.2=py35h38ce0a3_0
+- py=1.5.2=py35hfe8c5ce_0
+- pygments=2.2.0=py35h0f41973_0
+- pytest=3.4.0=py35_0
+- pytest-forked=0.2=py35hc748f2f_0
+- pytest-xdist=1.20.1=py35h5ef5961_0
+- python=3.5.4=h417fded_24
+- pyzmq=16.0.3=py35ha889422_0
+- readline=7.0=ha6073c6_4
+- setuptools=38.4.0=py35_0
+- simplegeneric=0.8.1=py35_2
+- six=1.11.0=py35h423b573_1
+- sqlite=3.22.0=h1bed415_0
+- tk=8.6.7=hc745277_3
+- traitlets=4.3.2=py35ha522a97_0
+- wcwidth=0.1.7=py35hcd08066_0
+- wheel=0.30.0=py35hd3883cf_1
+- xz=5.2.3=h55aa19d_2
+- yarl=1.1.1=py35h14c3975_0
+- zeromq=4.2.2=hbedb6e5_2
+- zlib=1.2.11=ha838bed_2
+- omniorb=4.2.1=py35_0
+- pytango=9.2.2=py35h7a252e3_0
+- tango=9.2.5a=0
+- pip:
+  - aiofiles==0.3.2
+  - appdirs==1.4.3
+  - atomicwrites==1.1.5
+  - click==6.7
+  - colorama==0.3.9
+  - coverage==4.4.1
+  - hatch==0.18.0
+  - httptools==0.0.10
+  - ipython-genutils==0.2.0
+  - pkginfo==1.4.1
+  - prompt-toolkit==1.0.15
+  - requests==2.18.4
+  - requests-toolbelt==0.8.0
+  - sanic==0.7.0
+  - sanic-cors==0.9.3
+  - sanic-plugins-framework==0.5.0.dev20171225
+  - semver==2.7.9
+  - tqdm==4.17.1
+  - twine==1.9.1
+  - ujson==1.35
+  - urllib3==1.22
+  - uvloop==0.9.1
+  - websockets==4.0.1
