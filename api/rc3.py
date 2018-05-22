@@ -97,7 +97,7 @@ async def devices(rq, host, port):
 
 	dev_range = rq.args.pop("range", None)
 	filters = rq.args
-	db_proxy = await getDeviceProxy('sys/database/2')
+	db_proxy = await getDeviceProxy(db.get_name())
 	devs = await db_proxy.DbGetDeviceList(['*','*'])
 	devs = device_filtering(devs, filters, dev_range)
 
