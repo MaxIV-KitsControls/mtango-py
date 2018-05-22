@@ -32,6 +32,7 @@ class Version(tuple):
 
 
 def device_filtering(devices, filters=None, range=None):
+	"""Given a list containing device names, return a filtered list; by wildcard pattern, or by range"""
 	if filters:
 		domain = filters.get("domain", ".*")
 		family = filters.get("family", ".*")
