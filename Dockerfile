@@ -18,7 +18,7 @@ RUN conda env create --name mtango-py python=3.5 --file=/tmp/environment.yml
 RUN git clone https://github.com/MaxIV-KitsControls/mtango-py.git
 
 WORKDIR mtango-py
-RUN git checkout -b develop
+RUN git checkout -t origin/develop -b develop
 
 # run the web service
 EXPOSE 8000
