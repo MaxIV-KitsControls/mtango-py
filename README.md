@@ -158,7 +158,7 @@ The available options are:
 * sanic
 * sanic-cors
 
-## Running
+## Running in development
 The fastest and easiest way to get started with mtango-py is using `conda`.
 
 1. Download and install `miniconda` (https://conda.io/miniconda.html).
@@ -169,17 +169,29 @@ The fastest and easiest way to get started with mtango-py is using `conda`.
 6. Install Sanic: `pip install sanic sanic-cors`
 
 To start the server run `python main.py` in the main directory.
+## Running in operation
+The safer way to run in operation is using container.
+
+To build an image, e.g.:
+```shell
+$ docker build . -t docker.maxiv.lu.se/mtango-py
+```
+
+To run it, e.g.:
+```shell
+$ docker run -d -p 8000:8000 -e TANGO_HOST=mylab:10000 --name=mtango-py docker.maxiv.lu.se/mtango-py
+```
 
 ## Testing
 
 ### Requirements
 
-Tests require `pytest` and `pytest-xdist` packages.  
+Tests require `pytest`, `pytest-xdist`, `aiohttp` (for Sanic test) packages.  
 For all tests to pass you have to have several things configured in Tango database:
 * `TangoTest` device named `sys/tg_test/1`
 * `double_scalar` attribute is polled
 * `State` command is polled
-* `abs_change` property is set for `double_scalar` attribute
+* `my_attribute_property` property is set for `double_scalar` attribute
 * Tango 9 (for pipes)
 * `string_long_short_ro` pipe should be defined
 

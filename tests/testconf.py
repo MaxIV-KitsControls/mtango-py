@@ -1,1 +1,1 @@
-tango_host = ("10.81.0.101", "10000")
+tango_host = ("w-v-kitslab-cc-0", "10000")

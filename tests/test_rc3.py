@@ -42,6 +42,22 @@ def test_devices():
 		assert "name" in dev
 		assert "href" in dev
 
+def test_devices_range():
+	rq, rsp = app.test_client.get("%s/rc3/hosts/%s/%s/devices?range=0-20" % urltuple)
+	b = mtango_list(rsp)
+	for dev in b:
+		assert type(dev) == dict
+		assert "name" in dev
+		assert "href" in dev
+	assert len(b) <= 20
+
+def test_devices_wildcard():
+	rq, rsp = app.test_client.get("%s/rc3/hosts/%s/%s/devices?wildcard=sys/tg_test*" % urltuple)
+	b = mtango_list(rsp)
+	for dev in b:
+		assert type(dev) == dict
+		assert "name" in dev
+		assert "href" in dev
 
 def test_device():
 	rq, rsp = app.test_client.get("%s/rc3/hosts/%s/%s/devices/sys/tg_test/1" % urltuple)
@@ -86,6 +102,7 @@ def test_alt_attribute_value():
 		assert "value" in attr
 		assert "quality" in attr
 		assert "timestamp" in attr
+
 
 
 def test_alt_attribute_value_multi():
@@ -186,6 +203,13 @@ def test_attribute_value():
 	assert "quality" in b
 	assert "timestamp" in b
 
+def test_write_scalar_attribute():
+	rq, rsp = app.test_client.put("%s/rc3/hosts/%s/%s/devices/sys/tg_test/1/attributes/double_scalar/value?async=true" % urltuple, data="3.14")
+	mtango_async(rsp)
+
+def test_write_scalar_attribute_arg():
+	rq, rsp = app.test_client.put("%s/rc3/hosts/%s/%s/devices/sys/tg_test/1/attributes/double_scalar/value?async=true&v=3.14" % urltuple)
+	mtango_async(rsp)
 
 def test_attribute_info():
 	rq, rsp = app.test_client.get("%s/rc3/hosts/%s/%s/devices/sys/tg_test/1/attributes/double_scalar/info" % urltuple)
@@ -236,7 +260,7 @@ def test_attribute_properties():
 
 
 def test_attribute_property():
-	rq, rsp = app.test_client.get("%s/rc3/hosts/%s/%s/devices/sys/tg_test/1/attributes/double_scalar/properties/abs_change" % urltuple)
+	rq, rsp = app.test_client.get("%s/rc3/hosts/%s/%s/devices/sys/tg_test/1/attributes/double_scalar/properties/my_attribute_property" % urltuple)
 	mtango_object(rsp)
 
 
@@ -259,6 +283,17 @@ def test_command():
 	assert "history" in b
 	assert "_links" in b
 
+def test_alt_command_void():
+	rq, rsp = app.test_client.put("%s/rc3/hosts/%s/%s/devices/sys/tg_test/1/commands/DevVoid" % urltuple)
+	b = mtango_object(rsp)
+	assert "name" in b
+	assert "output" not in b
+
+def test_alt_command_string():
+	rq, rsp = app.test_client.put("%s/rc3/hosts/%s/%s/devices/sys/tg_test/1/commands/DevString" % urltuple, data="TEST mtango-py")
+	b = mtango_object(rsp)
+	assert "name" in b
+	assert "output" in b
 
 def test_command_history():
 	rq, rsp = app.test_client.get("%s/rc3/hosts/%s/%s/devices/sys/tg_test/1/commands/State/history" % urltuple)
